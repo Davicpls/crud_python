@@ -1,9 +1,9 @@
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
-from env_secrets import secrets_user as user
-from env_secrets import secrets_pw as pw
-from env_secrets import secrets_local as local
-from env_secrets import secrets_db_name as db_name
+from configs.env_secrets import secrets_user as user
+from configs.env_secrets import secrets_pw as pw
+from configs.env_secrets import secrets_local as local
+from configs.env_secrets import secrets_db_name as db_name
 
 
 class DbConn:
