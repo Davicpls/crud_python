@@ -1,7 +1,7 @@
 import subprocess
-from fastapi import FastAPI
+from app import app
 
-app = FastAPI()
+ok = app
 
 
 if __name__ == "__main__":

@@ -1,17 +1,24 @@
 from fastapi import FastAPI, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
+from routes.management_routes import api_management
 
-api = FastAPI()
+app = FastAPI()
 
-api.api_route = APIRouter(prefix='/api')
+api = APIRouter(prefix='/api')
 
-api.api_route('')
+@app.get('/a')
+def home():
+    return 'api on'
 
+api.include_router(api_management)
 
-api.add_middleware(
+app.include_router(api, prefix='/api')
+
+app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
