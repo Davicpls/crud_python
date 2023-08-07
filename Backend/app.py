@@ -1,16 +1,12 @@
 from fastapi import FastAPI, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
-from routes.management_routes import api_management
+from routes.management_routes import api_management_post
 
 app = FastAPI()
 
-api = APIRouter(prefix='/api')
+api = APIRouter(prefix='/management')
 
-@app.get('/a')
-def home():
-    return 'api on'
-
-api.include_router(api_management)
+api.include_router(api_management_post)
 
 app.include_router(api, prefix='/api')
 

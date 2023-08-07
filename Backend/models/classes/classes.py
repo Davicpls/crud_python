@@ -1,6 +1,5 @@
-from sqlalchemy import String, Float, ForeignKey, TIMESTAMP, DateTime
+from sqlalchemy import String, Float, ForeignKey, TIMESTAMP, DateTime, func
 from sqlalchemy.orm import DeclarativeBase, relationship, Mapped, mapped_column
-from datetime import datetime
 from configs.db_conn import DbConn
 from typing import List
 
@@ -20,7 +19,7 @@ class User(Base):
     email: Mapped[str] = mapped_column(String(40))
     cpf: Mapped[str] = mapped_column(String(11))
     password: Mapped[str] = mapped_column(String(20))
-    creation_time: Mapped[TIMESTAMP] = mapped_column(TIMESTAMP)
+    creation_time: Mapped[TIMESTAMP] = mapped_column(TIMESTAMP, default=func.now())
 
     transactions: Mapped[List["Transactions"]] = relationship(back_populates="user", cascade="all, delete-orphan")
     user_items: Mapped[List["UserItems"]] = relationship(back_populates="user", cascade="all, delete-orphan")
@@ -53,12 +52,12 @@ class Transactions(Base):
     __table_args__ = {'schema': 'private'}
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    date_time: Mapped[DateTime] = mapped_column(DateTime, default=datetime.now)
+    date_time: Mapped[DateTime] = mapped_column(DateTime, default=func.now())
     user_id: Mapped[int] = mapped_column(ForeignKey('private.user.id'))
     item_id: Mapped[int] = mapped_column(ForeignKey('private.items.id'))
 
-    user: Mapped["User"] = relationship(back_populates="transactions", cascade="all, delete-orphan")
-    items: Mapped["Items"] = relationship(back_populates="transactions", cascade="all, delete-orphan")
+    user: Mapped["User"] = relationship(back_populates="transactions")
+    items: Mapped["Items"] = relationship(back_populates="transactions")
 
     def __repr__(self) -> str:
         return f"Transactions(id={self.id!r}, date_time={self.date_time!r}, user_id={self.user_id!r}," \
@@ -73,8 +72,8 @@ class UserItems(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey('private.user.id'))
     item_id: Mapped[int] = mapped_column(ForeignKey('private.items.id'))
 
-    user: Mapped["User"] = relationship(back_populates="user_items", cascade="all, delete-orphan")
-    items: Mapped["Items"] = relationship(back_populates="user_items", cascade="all, delete-orphan")
+    user: Mapped["User"] = relationship(back_populates="user_items")
+    items: Mapped["Items"] = relationship(back_populates="user_items")
 
     def __repr__(self) -> str:
         return f"Transactions(id={self.id!r}, user_id={self.user_id!r}, item_id={self.user_id!r})"
