@@ -1,12 +1,14 @@
 from fastapi import FastAPI, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 from routes.management_routes import api_management_post
+from routes.login_session_routes import api_login_session
 
 app = FastAPI()
 
 api = APIRouter(prefix='/management')
 
 api.include_router(api_management_post)
+api.include_router(api_login_session)
 
 app.include_router(api, prefix='/api')
 

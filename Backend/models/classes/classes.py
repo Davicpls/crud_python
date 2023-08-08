@@ -2,6 +2,7 @@ from sqlalchemy import String, Float, ForeignKey, TIMESTAMP, DateTime, func
 from sqlalchemy.orm import DeclarativeBase, relationship, Mapped, mapped_column
 from configs.db_conn import DbConn
 from typing import List
+from pydantic import BaseModel
 
 connection = DbConn()
 
@@ -16,7 +17,7 @@ class User(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(50))
-    email: Mapped[str] = mapped_column(String(40))
+    email: Mapped[str] = mapped_column(String(40), unique=True)
     cpf: Mapped[str] = mapped_column(String(11))
     password: Mapped[str] = mapped_column(String(20))
     creation_time: Mapped[TIMESTAMP] = mapped_column(TIMESTAMP, default=func.now())
@@ -77,6 +78,7 @@ class UserItems(Base):
 
     def __repr__(self) -> str:
         return f"Transactions(id={self.id!r}, user_id={self.user_id!r}, item_id={self.user_id!r})"
+
 
 # CREATE ALL TABLES:
 

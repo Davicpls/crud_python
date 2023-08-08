@@ -1,3 +1,5 @@
+from fastapi import HTTPException, status
+from sqlalchemy.exc import IntegrityError
 from models.classes.classes import *
 from configs.db_conn import DbConn
 from typing import Optional
@@ -18,7 +20,10 @@ class ItemsManagement:
         session = connection.Session()
         new_user = User(name=name, email=email, cpf=cpf, password=password)
         session.add(new_user)
-        session.commit()
+        try:
+            session.commit()
+        except IntegrityError:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already registered")
 
         result = new_user.__repr__()
 
