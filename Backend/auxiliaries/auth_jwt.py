@@ -3,7 +3,7 @@ from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from datetime import datetime, timedelta
 from models.classes.classes import User
-from encrypt import session
+from auxiliaries.encrypt import session
 
 SECRET_KEY = "your_super_secret_key"
 ALGORITHM = "HS256"

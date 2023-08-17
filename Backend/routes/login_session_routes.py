@@ -31,8 +31,10 @@ async def login_session(form_data: OAuth2PasswordRequestForm = Depends(),
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-@api_login_session.get("/users/me")
-def read_users_me(current_user: User = Depends(get_current_user)):
+@api_login_session.get("/users/me",
+                       tags=['Login session'],
+                       status_code=200)
+async def read_users_me(current_user: User = Depends(get_current_user)):
     return current_user
 
 
