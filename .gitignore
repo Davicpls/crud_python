@@ -1,0 +1,11 @@
+backend/__pycache__/app.cpython-310.pyc
+backend/__pycache__/main.cpython-310.pyc
+backend/auxiliaries/__pycache__/auth_jwt.cpython-310.pyc
+backend/auxiliaries/__pycache__/encrypt.cpython-310.pyc
+backend/configs/__pycache__/db_conn.cpython-310.pyc
+backend/configs/__pycache__/env_secrets.cpython-310.pyc
+backend/controllers/__pycache__/post_control.cpython-310.pyc
+backend/models/classes/__pycache__/classes.cpython-310.pyc
+backend/models/classes/__pycache__/pydantic_models.cpython-310.pyc
+backend/routes/__pycache__/login_session_routes.cpython-310.pyc
+backend/routes/__pycache__/management_routes.cpython-310.pyc
