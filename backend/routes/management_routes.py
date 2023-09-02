@@ -13,11 +13,8 @@ api_management_post = APIRouter(prefix='/post')
                           description='Insert a new user on table users',
                           tags=['Manager post'],
                           status_code=200)
-async def insert_user(user_reg: UserRegister = Body(None, description='Account creation model')):
-
+async def create_user(user_reg: UserRegister = Body(None, description='Account creation model')):
     hashed_password = get_password_hash(user_reg.password)
-    print(hashed_password)
-
     try:
         result = ItemsManagement.insert_an_user(name=user_reg.name,
                                                 email=user_reg.email,
@@ -35,7 +32,6 @@ async def insert_user(user_reg: UserRegister = Body(None, description='Account c
                           status_code=200)
 async def insert_item(current_user: User = Depends(get_current_user),
                       new_item: InsertItem = Body(None, description='Insert new item model')):
-
     try:
         result = ItemsManagement.insert_an_item(user_id=new_item.user_id,
                                                 name=new_item.name,
@@ -55,7 +51,6 @@ async def insert_item(current_user: User = Depends(get_current_user),
                           status_code=200)
 async def insert_transaction(current_user: User = Depends(get_current_user),
                              new_transaction: InsertTransaction = Body(None, description='New transaction model')):
-
     try:
         result = ItemsManagement.insert_an_transaction(user_id=new_transaction.user_id,
                                                        item_id=new_transaction.item_id)
