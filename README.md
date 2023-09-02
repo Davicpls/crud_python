@@ -14,7 +14,7 @@ Projeto de gerenciamento de estoque usando FastAPI, SQLAlchemy e psycopg2 para o
 2. Instale as dependências do backend na raiz do backend usando:
    ```bash
    pip install -r requirements.txt
-3. Instale as dependências do frontend na raiz do backend usando:
+3. Instale as dependências do frontend na raiz do frontend usando:
 4. ```bash
    npm install
 5. Inicie o frontend na porta 3000 com:
