@@ -1,6 +1,6 @@
 # CRUD de Gerenciamento de Estoque
 
-Projeto de gerenciamento de estoque usando FastAPI, SQLAlchemy e psycopg2 para o backend, com o frontend ainda em decisão de tecnologias e bibliotecas.
+Projeto de gerenciamento de estoque usando FastAPI, SQLAlchemy e psycopg2 para o backend, com o frontend em React.js + MUI.
 
 ## Tecnologias Backend
 
