@@ -9,3 +9,4 @@ backend/models/classes/__pycache__/classes.cpython-310.pyc
 backend/models/classes/__pycache__/pydantic_models.cpython-310.pyc
 backend/routes/__pycache__/login_session_routes.cpython-310.pyc
 backend/routes/__pycache__/management_routes.cpython-310.pyc
+.idea/.gitignore
