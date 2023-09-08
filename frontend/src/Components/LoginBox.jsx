@@ -35,9 +35,10 @@ export default function LoginBox() {
     setPasswordHelperText("Incorrect password entry");
   };
 
-  const initialData = localStorage.getItem("myKey");
-  const [userName, setUserName] = useState(null);
-  const [userData, setUserData] = useState(initialData);
+  const initialData = localStorage.getItem("myName");
+  const [userName, setUserName] = useState(initialData);
+  const [userToken, setUserToken] = useState(null)
+  const [userId, setUserId] = useState(null)
 
   const handleSubmitLogin = () => {
     const formData = new FormData();
@@ -49,24 +50,32 @@ export default function LoginBox() {
     api
       .post("/login/new_session", formData, config)
       .then((res) => {
-        setUserName(res.data.name);
-        setUserData(res.data.name);
+        localStorage.clear();
+        setUserToken(res.data.access_token);
+        setUserName(res.data.name); 
+        setUserId(res.data.id)
       })
       .catch((err) => {
         console.error(err);
       });
   };
 
-  useEffect(() => {
-    if (userData !== null){
-    localStorage.setItem("myKey", userData);
-  }}, [userData]);
 
   useEffect(() => {
-    if (userName !== null) {
-      navigate(`/user/${userName}`);
+    if (userToken !== null){
+    localStorage.setItem("myToken", userToken);
+  }}, [userToken]);
+
+  useEffect(() => {
+    if (userName !== null){
+    localStorage.setItem("myName", userName);
+  }}, [userName]);
+
+  useEffect(() => {
+    if (userId !== null) {
+      navigate(`/user/${userId}`);
     }
-  }, [userName, navigate]);
+  }, [navigate, userId]);
 
   return (
     <Box
