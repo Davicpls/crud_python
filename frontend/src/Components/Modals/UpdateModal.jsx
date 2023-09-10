@@ -9,10 +9,8 @@ import {
   FormControl,
   Snackbar,
   Button,
-  IconButton,
 } from "@mui/material/";
-import CloseIcon from "@mui/icons-material/Close";
-import { useEffect, useState } from "react";
+import {  useState } from "react";
 import { useParams } from "react-router-dom";
 import { useAxios } from "../../Hooks/useAxios";
 import MuiAlert from "@mui/material/Alert";
@@ -35,9 +33,9 @@ const style = {
 };
 
 
-export default function InsertModal({ handleClose, open }) {
+export default function UpdateModal({ handleClose, open, rowId }) {
 
-  const id = useParams().id
+  const userId = useParams().id
 
   const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -91,15 +89,14 @@ export default function InsertModal({ handleClose, open }) {
     }
 
     setErrorFloat('');
-
     insertItemsForm['quantity'] = parseFloat(insertItemsForm['quantity']);
     insertItemsForm['price'] = parseFloat(insertItemsForm['price']);
-    insertItemsForm['user_id'] = parseInt(id);
-
+    insertItemsForm['user_id'] = parseInt(userId);
+    insertItemsForm['id'] = parseInt(rowId);
     const data = insertItemsForm;
 
     api
-      .post("post/new_item", data)
+      .patch("patch/new_item", data)
       .then((res) => {
         if (res.status === 200) {
           emptyFormData();
@@ -110,7 +107,6 @@ export default function InsertModal({ handleClose, open }) {
         console.log(err);
       });
   };
-
 
   return (
     <>
@@ -129,7 +125,7 @@ export default function InsertModal({ handleClose, open }) {
       >
         <Fade in={open}>
           <Box sx={style}>
-            Preencha os campos para inserir um novo item no seu inventário!
+            Preencha os campos para atualizar o seu item!
             <Typography
               sx={{
                 height: "70%",

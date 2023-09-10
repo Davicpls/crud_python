@@ -1,7 +1,9 @@
+import React, { useContext } from 'react';
 import { Box, Typography, TextField, Button } from "@mui/material";
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAxios } from "../Hooks/useAxios";
+import AppContext from "../Hooks/AppContext";
 
 export default function LoginBox() {
   const api = useAxios();
@@ -37,7 +39,7 @@ export default function LoginBox() {
 
   const initialData = localStorage.getItem("myName");
   const [userName, setUserName] = useState(initialData);
-  const [userToken, setUserToken] = useState(null)
+  const { userToken, setUserToken } = useContext(AppContext)
   const [userId, setUserId] = useState(null)
 
   const handleSubmitLogin = () => {
@@ -52,7 +54,7 @@ export default function LoginBox() {
       .then((res) => {
         localStorage.clear();
         setUserToken(res.data.access_token);
-        setUserName(res.data.name); 
+        setUserName(res.data.name);
         setUserId(res.data.id)
       })
       .catch((err) => {
@@ -62,14 +64,10 @@ export default function LoginBox() {
 
 
   useEffect(() => {
-    if (userToken !== null){
-    localStorage.setItem("myToken", userToken);
-  }}, [userToken]);
-
-  useEffect(() => {
-    if (userName !== null){
-    localStorage.setItem("myName", userName);
-  }}, [userName]);
+    if (userName !== null) {
+      localStorage.setItem("myName", userName);
+    }
+  }, [userName]);
 
   useEffect(() => {
     if (userId !== null) {
