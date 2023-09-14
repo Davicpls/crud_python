@@ -39,7 +39,7 @@ export default function LoginBox() {
 
   const initialData = localStorage.getItem("myName");
   const [userName, setUserName] = useState(initialData);
-  const { userToken, setUserToken } = useContext(AppContext)
+  const [userToken, setUserToken] = useState(null)
   const [userId, setUserId] = useState(null)
 
   const handleSubmitLogin = () => {
@@ -62,6 +62,11 @@ export default function LoginBox() {
       });
   };
 
+  useEffect(() => {
+    if (userToken !== null) {
+      localStorage.setItem("myToken", userToken);
+    }
+  }, [userToken]);
 
   useEffect(() => {
     if (userName !== null) {

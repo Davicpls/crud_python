@@ -10,7 +10,7 @@ import {
   Snackbar,
   Button,
 } from "@mui/material/";
-import {  useState } from "react";
+import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useAxios } from "../../Hooks/useAxios";
 import MuiAlert from "@mui/material/Alert";
@@ -33,9 +33,9 @@ const style = {
 };
 
 
-export default function UpdateModal({ handleClose, open, rowId }) {
+export default function UpdateModal({ handleClose, open, rowId, setRows }) {
 
-  const userId = useParams().id
+  const id = useParams().id
 
   const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -65,7 +65,11 @@ export default function UpdateModal({ handleClose, open, rowId }) {
     price: "",
   };
 
+
+
   const [insertItemsForm, setInsertItemsForm] = useState(defaultInsertItems);
+
+  React.useEffect(() => {console.log(insertItemsForm)})
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -80,6 +84,16 @@ export default function UpdateModal({ handleClose, open, rowId }) {
     setInsertItemsForm(defaultInsertItems);
   }
 
+  const refresh = async () => {
+    try{
+      const response = await api.get(`/get/get_items?user_id=${id}`);
+      setRows(response.data);
+    }
+    catch (err){
+      console.log(err);
+    }
+  };
+
   const handleSubmit = async () => {
     const floatRegex = /^-?([0-9]*[.])?[0-9]+$/;
 
@@ -91,16 +105,16 @@ export default function UpdateModal({ handleClose, open, rowId }) {
     setErrorFloat('');
     insertItemsForm['quantity'] = parseFloat(insertItemsForm['quantity']);
     insertItemsForm['price'] = parseFloat(insertItemsForm['price']);
-    insertItemsForm['user_id'] = parseInt(userId);
-    insertItemsForm['id'] = parseInt(rowId);
+    insertItemsForm['row_id'] = parseInt(rowId);
     const data = insertItemsForm;
 
     api
-      .patch("patch/new_item", data)
+      .patch("patch/update_item", data)
       .then((res) => {
         if (res.status === 200) {
           emptyFormData();
           handleClickSnack();
+          refresh();
         }
       })
       .catch((err) => {

@@ -1,11 +1,12 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { Box, Button, Tab, Tabs, Typography } from "@mui/material";
 import NavBar from "../Navbar";
 import PropTypes from 'prop-types';
 import UserPageBoxes from "../UserPageBoxes";
 import AppContext from "../../Hooks/AppContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import DataGridComponent from "../DataGrid/Datagrid"
+import { useAxios } from "../../Hooks/useAxios";
 
 export default function UserHomePage() {
 
@@ -35,12 +36,6 @@ export default function UserHomePage() {
     value: PropTypes.number.isRequired,
   };
 
-  function a11yProps(index) {
-    return {
-      id: `simple-tab-${index}`,
-      'aria-controls': `simple-tabpanel-${index}`,
-    };
-  }
   const [value, setValue] = useState(0);
 
   const handleChange = (event, newValue) => {
@@ -53,7 +48,7 @@ export default function UserHomePage() {
     navigate(('/'))
   }
 
-  const { userToken, setUserToken } = useContext(AppContext);
+  const userToken = localStorage.getItem("myToken");
 
   const userName = localStorage.getItem("myName");
 
@@ -80,6 +75,26 @@ export default function UserHomePage() {
   const styleSettings = styleFeatures
     .map((feature) => `"${feature}"`)
     .join(", ");
+
+  const params = useParams();
+
+  const userId = params.id
+
+  const api = useAxios()
+
+  const { rows, setRows } = useContext(AppContext);
+
+  useEffect(() => {
+    api.get(`/get/get_items?user_id=${userId}`)
+      .then((res) => {
+        if (res.status === 200) {
+          setRows(res.data)
+        }
+      })
+      .catch((err) => {
+        console.log(err)
+      });
+  }, []);
 
 
   if (token === null) {
@@ -130,10 +145,10 @@ export default function UserHomePage() {
           <Tab label="Tabela de gerenciamento" />
         </Tabs>
         <TabPanel value={value} index={0}>
-            <UserPageBoxes />
+          <UserPageBoxes />
         </TabPanel>
         <TabPanel value={value} index={1}>
-            <DataGridComponent/>
+          <DataGridComponent rows={rows} setRows={setRows} />
         </TabPanel>
       </Box>
     </Box>

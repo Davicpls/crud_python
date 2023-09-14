@@ -35,7 +35,7 @@ const style = {
 };
 
 
-export default function InsertModal({ handleClose, open }) {
+export default function InsertModal({ handleClose, open, rows, setRows }) {
 
   const id = useParams().id
 
@@ -45,17 +45,26 @@ export default function InsertModal({ handleClose, open }) {
 
   const [errorFloat, setErrorFloat] = useState('');
 
-  const [openSnack, setOpenSnack] = useState(false);
+  const [openSnackSuccess, setOpenSnackSuccess] = useState(false);
+
+  const [openSnackError, setOpenSnackError] = useState(false)
 
   const handleClickSnack = () => {
-    setOpenSnack(true);
+    setOpenSnackSuccess(true);
   };
 
-  const handleCloseSnack = (event, reason) => {
+  const handleCloseSnackSuccess = (event, reason) => {
     if (reason === "clickaway") {
       return;
     }
-    setOpenSnack(false);
+    setOpenSnackSuccess(false);
+  };
+
+  const handleCloseSnackError = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpenSnackError(false);
   };
 
   const api = useAxios();
@@ -82,11 +91,25 @@ export default function InsertModal({ handleClose, open }) {
     setInsertItemsForm(defaultInsertItems);
   }
 
+
+  const refresh = async () => {
+    try{
+      const response = await api.get(`/get/get_items?user_id=${id}`);
+      setRows(response.data);
+    }
+    catch (err){
+      console.log(err);
+    }
+  };
+
+  const [isLoading, setIsLoading] = useState(false)
+
   const handleSubmit = async () => {
     const floatRegex = /^-?([0-9]*[.])?[0-9]+$/;
 
     if (!floatRegex.test(insertItemsForm['price']) || !floatRegex.test(insertItemsForm['quantity'])) {
       setErrorFloat('Insira um valor decimal válido');
+      setOpenSnackError(true)
       return;
     }
 
@@ -98,12 +121,15 @@ export default function InsertModal({ handleClose, open }) {
 
     const data = insertItemsForm;
 
+
+
     api
       .post("post/new_item", data)
       .then((res) => {
         if (res.status === 200) {
           emptyFormData();
           handleClickSnack();
+          refresh();
         }
       })
       .catch((err) => {
@@ -111,6 +137,7 @@ export default function InsertModal({ handleClose, open }) {
       });
   };
 
+  
 
   return (
     <>
@@ -191,12 +218,27 @@ export default function InsertModal({ handleClose, open }) {
       </Modal>
       <Snackbar
         sx={{ width: "400px" }}
-        open={openSnack}
+        open={openSnackError}
         autoHideDuration={3500}
-        onClose={handleCloseSnack}
+        onClose={handleCloseSnackError}
       >
         <Alert
-          onClose={handleCloseSnack}
+          onClose={handleCloseSnackError}
+          severity="error"
+          sx={{ width: "100%", fontFamily: "Montserrat", fontSize: "16px" }}
+          
+        >
+          {errorFloat}
+        </Alert>
+        </Snackbar>
+      <Snackbar
+        sx={{ width: "400px" }}
+        open={openSnackSuccess}
+        autoHideDuration={3500}
+        onClose={handleCloseSnackSuccess}
+      >
+        <Alert
+          onClose={handleCloseSnackSuccess}
           severity="success"
           sx={{ width: "100%", fontFamily: "Montserrat", fontSize: "16px" }}
         >

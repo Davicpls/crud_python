@@ -6,10 +6,10 @@ import AppContext from './Hooks/AppContext';
 import { useState} from "react";
 
 function App() {
-  const [userToken, setUserToken] = useState(null);
+  const [rows, setRows] = useState('');
 
   return (
-    <AppContext.Provider value={{ userToken, setUserToken }}>
+    <AppContext.Provider value={{ rows, setRows }}>
     <Router>
       <Routes>
         <Route path="/" element={<HomePage />} />
