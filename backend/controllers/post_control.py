@@ -7,7 +7,7 @@ from typing import Optional
 connection = DbConn()
 
 
-class ItemsManagement:
+class ItemsManagementPost:
 
     @classmethod
     def insert_an_user(cls,
@@ -57,7 +57,6 @@ class ItemsManagement:
                               user_id: int,
                               item_id: int) -> str:
 
-        # Adiciona uma nova transação
         session = connection.Session()
         new_transaction = Transactions(user_id=user_id, item_id=item_id)
         session.add(new_transaction)
@@ -66,4 +65,6 @@ class ItemsManagement:
         result = new_transaction.__repr__()
 
         return result
+
+
 

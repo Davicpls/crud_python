@@ -30,7 +30,7 @@ async def login_session(form_data: OAuth2PasswordRequestForm = Depends(),
             headers={"WWW-Authenticate": "Bearer"},
         )
     access_token = create_access_token(data={"sub": user.email})
-    # cookies -> response.set_cookie(key="access_token", value=access_token, max_age=1800, httponly=True, secure=True)
+
     return {"id": user_id, "name": username, "access_token": access_token, "type": "Bearer"}
 
 

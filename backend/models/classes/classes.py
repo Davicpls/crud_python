@@ -77,7 +77,7 @@ class UserItems(Base):
     items: Mapped["Items"] = relationship(back_populates="user_items")
 
     def __repr__(self) -> str:
-        return f"Transactions(id={self.id!r}, user_id={self.user_id!r}, item_id={self.user_id!r})"
+        return f"UserItems(id={self.id!r}, user_id={self.user_id!r}, item_id={self.user_id!r})"
 
 
 # CREATE ALL TABLES:

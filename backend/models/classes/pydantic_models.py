@@ -17,6 +17,16 @@ class InsertItem(BaseModel):
     price: float
 
 
+class UpdateItem(BaseModel):
+    row_id: int
+    name: Optional[str]
+    description: Optional[str]
+    quantity: Optional[float]
+    price: Optional[float]
+
+
 class InsertTransaction(BaseModel):
     user_id: int
     item_id: int
+
+
