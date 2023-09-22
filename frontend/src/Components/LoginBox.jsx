@@ -37,7 +37,7 @@ export default function LoginBox() {
     setPasswordHelperText("Incorrect password entry");
   };
 
-  const initialData = localStorage.getItem("myName");
+  const initialData = sessionStorage.getItem("myName");
   const [userName, setUserName] = useState(initialData);
   const [userToken, setUserToken] = useState(null)
   const [userId, setUserId] = useState(null)
@@ -52,10 +52,11 @@ export default function LoginBox() {
     api
       .post("/login/new_session", formData, config)
       .then((res) => {
-        localStorage.clear();
+        sessionStorage.clear();
+        console.log(res.data);
         setUserToken(res.data.access_token);
         setUserName(res.data.name);
-        setUserId(res.data.id)
+        setUserId(res.data.id);
       })
       .catch((err) => {
         console.error(err);
@@ -64,15 +65,21 @@ export default function LoginBox() {
 
   useEffect(() => {
     if (userToken !== null) {
-      localStorage.setItem("myToken", userToken);
+      sessionStorage.setItem("myToken", userToken);
     }
   }, [userToken]);
 
   useEffect(() => {
     if (userName !== null) {
-      localStorage.setItem("myName", userName);
+      sessionStorage.setItem("myName", userName);
     }
   }, [userName]);
+
+  useEffect(()=> {
+    if (userId !== null){
+      sessionStorage.setItem("myId", userId);
+    }
+  }, [userId])
 
   useEffect(() => {
     if (userId !== null) {
@@ -109,7 +116,7 @@ export default function LoginBox() {
             fontSize: "22px",
           }}
         >
-          Sign-in
+          Fazer Login
         </Box>
         <Box
           sx={{
@@ -122,9 +129,9 @@ export default function LoginBox() {
             fontSize: "16px",
           }}
         >
-          Don't have an account?
-          <Link style={{ color: "black" }} to="/">
-            Register
+          Não tem uma conta?
+          <Link style={{ color: "black" }} to="/register">
+            Registrar
           </Link>
         </Box>
       </Box>
@@ -137,7 +144,7 @@ export default function LoginBox() {
           display: "flex",
           alignItems: "center",
           flexDirection: "column",
-          mb: "5vh",
+          pb: "5vh",
         }}
       >
         <TextField
@@ -192,7 +199,7 @@ export default function LoginBox() {
           }}
         >
           <Link style={{ color: "black" }} to="/">
-            Forgot password?
+            Esqueceu a senha?
           </Link>
         </Typography>
       </Box>

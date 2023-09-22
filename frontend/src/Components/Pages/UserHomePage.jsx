@@ -4,7 +4,7 @@ import NavBar from "../Navbar";
 import PropTypes from 'prop-types';
 import UserPageBoxes from "../UserPageBoxes";
 import AppContext from "../../Hooks/AppContext";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, Navigate } from "react-router-dom";
 import DataGridComponent from "../DataGrid/Datagrid"
 import { useAxios } from "../../Hooks/useAxios";
 
@@ -48,14 +48,15 @@ export default function UserHomePage() {
     navigate(('/'))
   }
 
-  const userToken = localStorage.getItem("myToken");
+  const userToken = sessionStorage.getItem("myToken");
 
-  const userName = localStorage.getItem("myName");
+  const userName = sessionStorage.getItem("myName");
 
-  const token = userToken;
+  const sessionId = sessionStorage.getItem("myId");
+
+  useEffect(() => {console.log(userName)}, [])
 
   const title = `Página do usuário ${userName}`;
-
 
   const styleFeatures = [
     "cv11",
@@ -84,6 +85,8 @@ export default function UserHomePage() {
 
   const { rows, setRows } = useContext(AppContext);
 
+  useEffect(() => {console.log(userToken, userName)})
+
   useEffect(() => {
     api.get(`/get/get_items?user_id=${userId}`)
       .then((res) => {
@@ -96,8 +99,12 @@ export default function UserHomePage() {
       });
   }, []);
 
+  if (userId !== sessionId){
+    return <Navigate to="/not-allowed"/>;
+  }
 
-  if (token === null) {
+
+  if (userToken === null || userName === null) {
     return (
       <Box
         sx={{
@@ -135,7 +142,7 @@ export default function UserHomePage() {
           backgroundColor: "white",
           color: "blue",
           fontSize: "50px",
-          fontFamily: "montserrat",
+          fontFamily: "Montserrat",
           height: "100%",
           m: "1vmin"
         }}

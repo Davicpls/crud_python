@@ -8,11 +8,9 @@ import {
   TextField,
   FormControl,
   Snackbar,
-  Button,
-  IconButton,
+  Button
 } from "@mui/material/";
-import CloseIcon from "@mui/icons-material/Close";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useAxios } from "../../Hooks/useAxios";
 import MuiAlert from "@mui/material/Alert";
@@ -77,6 +75,7 @@ export default function InsertModal({ handleClose, open, rows, setRows }) {
   };
 
   const [insertItemsForm, setInsertItemsForm] = useState(defaultInsertItems);
+  React.useEffect(() => { console.log(insertItemsForm) })
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -93,18 +92,29 @@ export default function InsertModal({ handleClose, open, rows, setRows }) {
 
 
   const refresh = async () => {
-    try{
+    try {
       const response = await api.get(`/get/get_items?user_id=${id}`);
       setRows(response.data);
     }
-    catch (err){
+    catch (err) {
       console.log(err);
     }
   };
 
   const [isLoading, setIsLoading] = useState(false)
 
+  const hasEmptyString = (obj) => {
+    return Object.values(obj).some(value => value === "");
+  } 
+
   const handleSubmit = async () => {
+
+    if (hasEmptyString(insertItemsForm)){
+      setErrorFloat('Não é possível enviar campos vazios');
+      setOpenSnackError(true)
+      return;
+    }
+
     const floatRegex = /^-?([0-9]*[.])?[0-9]+$/;
 
     if (!floatRegex.test(insertItemsForm['price']) || !floatRegex.test(insertItemsForm['quantity'])) {
@@ -122,7 +132,6 @@ export default function InsertModal({ handleClose, open, rows, setRows }) {
     const data = insertItemsForm;
 
 
-
     api
       .post("post/new_item", data)
       .then((res) => {
@@ -137,7 +146,7 @@ export default function InsertModal({ handleClose, open, rows, setRows }) {
       });
   };
 
-  
+
 
   return (
     <>
@@ -226,11 +235,11 @@ export default function InsertModal({ handleClose, open, rows, setRows }) {
           onClose={handleCloseSnackError}
           severity="error"
           sx={{ width: "100%", fontFamily: "Montserrat", fontSize: "16px" }}
-          
+
         >
           {errorFloat}
         </Alert>
-        </Snackbar>
+      </Snackbar>
       <Snackbar
         sx={{ width: "400px" }}
         open={openSnackSuccess}

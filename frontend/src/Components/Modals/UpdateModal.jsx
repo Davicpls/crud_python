@@ -45,6 +45,8 @@ export default function UpdateModal({ handleClose, open, rowId, setRows }) {
 
   const [openSnack, setOpenSnack] = useState(false);
 
+  const [openSnackError, setOpenSnackError] = useState(false)
+
   const handleClickSnack = () => {
     setOpenSnack(true);
   };
@@ -55,58 +57,77 @@ export default function UpdateModal({ handleClose, open, rowId, setRows }) {
     }
     setOpenSnack(false);
   };
+  const handleCloseSnackError = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpenSnackError(false);
+  };
 
   const api = useAxios();
 
-  const defaultInsertItems = {
+  const defaultUpdateItems = {
     name: "",
     description: "",
     quantity: "",
-    price: "",
+    price: ""
   };
 
-
-
-  const [insertItemsForm, setInsertItemsForm] = useState(defaultInsertItems);
-
-  React.useEffect(() => {console.log(insertItemsForm)})
+  const [updateItemsForm, setUpdateItemsForm] = useState(defaultUpdateItems);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setInsertItemsForm((prevInsertItems) => ({
-      ...prevInsertItems,
-      [name]: value,
+    setUpdateItemsForm((prevUpdateItems) => ({
+      ...prevUpdateItems,
+      [name]: value
     }));
   };
 
 
   const emptyFormData = () => {
-    setInsertItemsForm(defaultInsertItems);
+    setUpdateItemsForm(defaultUpdateItems);
   }
 
   const refresh = async () => {
-    try{
+    try {
       const response = await api.get(`/get/get_items?user_id=${id}`);
       setRows(response.data);
     }
-    catch (err){
+    catch (err) {
       console.log(err);
     }
   };
 
   const handleSubmit = async () => {
+    if (updateItemsForm['quantity'] === "") {
+      updateItemsForm['quantity'] = null
+    }
+    if (updateItemsForm['price'] === "") {
+      updateItemsForm['price'] = null
+    }
+
     const floatRegex = /^-?([0-9]*[.])?[0-9]+$/;
 
-    if (!floatRegex.test(insertItemsForm['price']) || !floatRegex.test(insertItemsForm['quantity'])) {
-      setErrorFloat('Insira um valor decimal válido');
-      return;
+    if (updateItemsForm['quantity' !== null]) {
+      if (!floatRegex.test(updateItemsForm['quantity'])) {
+        setErrorFloat('Insira um valor decimal válido');
+        setOpenSnackError(true)
+        return;
+      }
+    }
+    if (updateItemsForm['price' !== null]) {
+      if (!floatRegex.test(updateItemsForm['price'])) {
+        setErrorFloat('Insira um valor decimal válido');
+        setOpenSnackError(true)
+        return;
+      }
     }
 
     setErrorFloat('');
-    insertItemsForm['quantity'] = parseFloat(insertItemsForm['quantity']);
-    insertItemsForm['price'] = parseFloat(insertItemsForm['price']);
-    insertItemsForm['row_id'] = parseInt(rowId);
-    const data = insertItemsForm;
+    updateItemsForm['quantity'] = parseFloat(updateItemsForm['quantity']);
+    updateItemsForm['price'] = parseFloat(updateItemsForm['price']);
+    updateItemsForm['row_id'] = parseInt(rowId);
+    const data = updateItemsForm;
 
     api
       .patch("patch/update_item", data)
@@ -157,7 +178,7 @@ export default function UpdateModal({ handleClose, open, rowId, setRows }) {
                   label="Nome do item"
                   name="name"
                   sx={{ m: 1, width: "40vmin" }}
-                  value={insertItemsForm.name}
+                  value={updateItemsForm.name}
                   onChange={handleChange}
                   fullWidth
                 />
@@ -165,7 +186,7 @@ export default function UpdateModal({ handleClose, open, rowId, setRows }) {
                   label="Descrição do item"
                   name="description"
                   sx={{ m: 1, width: "40vmin" }}
-                  value={insertItemsForm.description}
+                  value={updateItemsForm.description}
                   onChange={handleChange}
                   fullWidth
                 />
@@ -173,7 +194,7 @@ export default function UpdateModal({ handleClose, open, rowId, setRows }) {
                   label="Quantidade do item"
                   name="quantity"
                   sx={{ m: 1, width: "40vmin" }}
-                  value={insertItemsForm.quantity}
+                  value={updateItemsForm.quantity}
                   onChange={handleChange}
                   type="number"
                   fullWidth
@@ -182,7 +203,7 @@ export default function UpdateModal({ handleClose, open, rowId, setRows }) {
                   label="Preço do item"
                   name="price"
                   sx={{ m: 1, width: "40vmin" }}
-                  value={insertItemsForm.price}
+                  value={updateItemsForm.price}
                   onChange={handleChange}
                   type="number"
                   fullWidth
@@ -199,6 +220,21 @@ export default function UpdateModal({ handleClose, open, rowId, setRows }) {
           </Box>
         </Fade>
       </Modal>
+      <Snackbar
+        sx={{ width: "400px" }}
+        open={openSnackError}
+        autoHideDuration={3500}
+        onClose={handleCloseSnackError}
+      >
+        <Alert
+          onClose={handleCloseSnackError}
+          severity="error"
+          sx={{ width: "100%", fontFamily: "Montserrat", fontSize: "16px" }}
+
+        >
+          {errorFloat}
+        </Alert>
+      </Snackbar>
       <Snackbar
         sx={{ width: "400px" }}
         open={openSnack}

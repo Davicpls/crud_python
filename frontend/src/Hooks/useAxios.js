@@ -3,7 +3,7 @@ import { useContext } from "react";
 import AppContext from "./AppContext";
 
 export const useAxios = () => {
-  const token = localStorage.getItem("myToken")
+  const token = sessionStorage.getItem("myToken")
 
 
   return axios.create({
