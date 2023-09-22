@@ -30,27 +30,30 @@ class ItemsManagementPost:
         return result
 
     @classmethod
-    def insert_an_item(cls,
-                       user_id: int,
-                       name: str,
-                       description: Optional[str],
-                       quantity: float,
-                       price: float) -> str:
-
+    def insert_an_item(cls, new_item) -> str:
         # Adiciona novo item
-        session = connection.Session()
-        new_item = Items(name=name, description=description, quantity=quantity, price=price)
-        session.add(new_item)
-        session.commit()
+        try:
+            with connection.Session() as db:
+                insert_item = Items(name=new_item.name,
+                                    description=new_item.description,
+                                    quantity=new_item.quantity,
+                                    price=new_item.price
+                                    )
+                db.add(insert_item)
+                db.commit()
 
-        # Adiciona a relação user-items
-        user_items_association = UserItems(user_id=user_id, item_id=new_item.id)
-        session.add(user_items_association)
-        session.commit()
+                # Adiciona a relação user-items
+                user_items_association = UserItems(user_id=new_item.user_id, item_id=insert_item.id)
+                db.add(user_items_association)
+                db.commit()
+                db.refresh(insert_item)
+                db.refresh(user_items_association)
 
-        result = new_item.__repr__()
+                result = new_item.__repr__()
 
-        return result
+            return result
+        except Exception as e:
+            print(f'Your exception -> {e}')
 
     @classmethod
     def insert_an_transaction(cls,

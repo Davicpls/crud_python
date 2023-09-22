@@ -37,12 +37,7 @@ async def create_user(user_reg: UserRegister = Body(None, description='Account c
 async def insert_item(current_user: User = Depends(get_current_user),
                       new_item: InsertItem = Body(None, description='Insert new item model')):
     try:
-        result = ItemsManagementPost.insert_an_item(user_id=new_item.user_id,
-                                                    name=new_item.name,
-                                                    description=new_item.description,
-                                                    quantity=new_item.quantity,
-                                                    price=new_item.price
-                                                    )
+        result = ItemsManagementPost.insert_an_item(new_item=new_item)
 
         return result
     except Exception as e:
@@ -71,12 +66,7 @@ async def insert_transaction(current_user: User = Depends(get_current_user),
 async def update_item(current_user: User = Depends(get_current_user),
                       updated_item: UpdateItem = Body(None, description='Update item model')):
     try:
-        result = ItemsManagementPatch.patch_items(row_id=updated_item.row_id,
-                                                  name=updated_item.name,
-                                                  description=updated_item.description,
-                                                  quantity=updated_item.quantity,
-                                                  price=updated_item.price
-                                                  )
+        result = ItemsManagementPatch.patch_items(updated_item=updated_item)
 
         return result
     except Exception as e:
