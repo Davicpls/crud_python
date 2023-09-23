@@ -1,31 +1,78 @@
 from fastapi import HTTPException, status
 from sqlalchemy.exc import IntegrityError
 from models.classes.classes import *
+from auxiliaries.encrypt import *
 from configs.db_conn import DbConn
-from typing import Optional
-
+import re
 connection = DbConn()
+
+
+def validate_cpf(cpf: str) -> bool:
+    if len(cpf) != 11:
+        return False
+
+    if not cpf.isdigit():
+        return False
+
+    if re.match(r'^(\d)\1+$', cpf):
+        return False
+
+    add: int = 0
+    for i in range(9):
+        add += int(cpf[i]) * (10 - i)
+
+    rev: int = 11 - (add % 11)
+    if rev == 10 or rev == 11:
+        rev = 0
+
+    if rev != int(cpf[9]):
+        return False
+
+    add = 0
+    for i in range(10):
+        add += int(cpf[i]) * (11 - i)
+
+    rev = 11 - (add % 11)
+    if rev == 10 or rev == 11:
+        rev = 0
+
+    if rev != int(cpf[10]):
+        return False
+
+    return True
+
+
+def validate_name(name: str) -> bool:
+    return bool(re.match(r'^[a-zA-Z\s]{2,}$', name))
 
 
 class ItemsManagementPost:
 
     @classmethod
-    def insert_an_user(cls,
-                       name: str,
-                       email: str,
-                       cpf: str,
-                       password: str) -> str:
+    def insert_an_user(cls, user_reg) -> str:
+        hashed_password = get_password_hash(user_reg.password)
+        with connection.Session() as db:
+            try:
+                if validate_name(user_reg.name):
+                    titled_name = user_reg.name.title()
+                else:
+                    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Nome inválido")
+                if validate_cpf(user_reg.cpf):
+                    user_with_cpf = db.query(User.cpf).filter(User.cpf == user_reg.cpf).first()
+                    if user_with_cpf:
+                        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Esse CPF já existe")
+                else:
+                    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Esse CPF não é válido")
+                new_user = User(name=titled_name, email=user_reg.email, cpf=user_reg.cpf, password=hashed_password)
+                db.add(new_user)
+                db.commit()
+                result = new_user.__repr__()
 
-        # Adiciona novo usuário
-        session = connection.Session()
-        new_user = User(name=name, email=email, cpf=cpf, password=password)
-        session.add(new_user)
-        try:
-            session.commit()
-        except IntegrityError:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already registered")
-
-        result = new_user.__repr__()
+            except IntegrityError:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Esse Email já existe")
+            except Exception as e:
+                print(f'Your exception -> {e}')
+                raise e
 
         return result
 
@@ -56,9 +103,7 @@ class ItemsManagementPost:
             print(f'Your exception -> {e}')
 
     @classmethod
-    def insert_an_transaction(cls,
-                              user_id: int,
-                              item_id: int) -> str:
+    def insert_an_transaction(cls, user_id: int, item_id: int) -> str:
 
         session = connection.Session()
         new_transaction = Transactions(user_id=user_id, item_id=item_id)

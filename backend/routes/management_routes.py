@@ -1,8 +1,8 @@
-from fastapi import APIRouter, Body, HTTPException, Depends, Query
+from fastapi import APIRouter, Body, HTTPException, Depends, Query, Path
 from controllers.post_control import ItemsManagementPost
 from controllers.get_control import ItemsManagementGet
 from controllers.patch_control import ItemsManagementPatch
-from auxiliaries.encrypt import *
+from controllers.delete_control import ItemsManagementDelete
 from models.classes.pydantic_models import *
 from auxiliaries.auth_jwt import get_current_user
 from models.classes.classes import User
@@ -11,6 +11,7 @@ from models.classes.classes import User
 api_management_post = APIRouter(prefix='/post')
 api_management_get = APIRouter(prefix='/get')
 api_management_patch = APIRouter(prefix='/patch')
+api_management_delete = APIRouter(prefix='/delete')
 
 
 @api_management_post.post('/new_user',
@@ -18,16 +19,8 @@ api_management_patch = APIRouter(prefix='/patch')
                           tags=['Manager post'],
                           status_code=200)
 async def create_user(user_reg: UserRegister = Body(None, description='Account creation model')):
-    hashed_password = get_password_hash(user_reg.password)
-    try:
-        result = ItemsManagementPost.insert_an_user(name=user_reg.name,
-                                                    email=user_reg.email,
-                                                    cpf=user_reg.cpf,
-                                                    password=hashed_password
-                                                    )
-        return result
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Houve um erro no retorno do seu user inputado: {e}")
+    result = ItemsManagementPost.insert_an_user(user_reg=user_reg)
+    return result
 
 
 @api_management_post.post('/new_item',
@@ -85,6 +78,18 @@ async def get_items(current_user: User = Depends(get_current_user),
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Houve um erro no retorno do seu item inputado: {e}")
+
+
+@api_management_delete.delete('/{row_id}',
+                              description='Delete a item row',
+                              tags=['Manager delete'],
+                              status_code=200)
+async def delete_items(current_user: User = Depends(get_current_user),
+                       row_id: int = Path(..., description='Delete an item')):
+    result = ItemsManagementDelete.delete_items(row_id=row_id)
+    return result
+
+
 
 
 
