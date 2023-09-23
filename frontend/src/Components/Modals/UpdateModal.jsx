@@ -41,7 +41,7 @@ export default function UpdateModal({ handleClose, open, rowId, setRows }) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
   });
 
-  const [errorFloat, setErrorFloat] = useState('');
+  const [errorSnack, setErrorSnack] = useState('');
 
   const [openSnack, setOpenSnack] = useState(false);
 
@@ -110,20 +110,20 @@ export default function UpdateModal({ handleClose, open, rowId, setRows }) {
 
     if (updateItemsForm['quantity' !== null]) {
       if (!floatRegex.test(updateItemsForm['quantity'])) {
-        setErrorFloat('Insira um valor decimal válido');
+        setErrorSnack('Insira um valor decimal válido');
         setOpenSnackError(true)
         return;
       }
     }
     if (updateItemsForm['price' !== null]) {
       if (!floatRegex.test(updateItemsForm['price'])) {
-        setErrorFloat('Insira um valor decimal válido');
+        setErrorSnack('Insira um valor decimal válido');
         setOpenSnackError(true)
         return;
       }
     }
 
-    setErrorFloat('');
+    setErrorSnack('');
     updateItemsForm['quantity'] = parseFloat(updateItemsForm['quantity']);
     updateItemsForm['price'] = parseFloat(updateItemsForm['price']);
     updateItemsForm['row_id'] = parseInt(rowId);
@@ -139,7 +139,10 @@ export default function UpdateModal({ handleClose, open, rowId, setRows }) {
         }
       })
       .catch((err) => {
-        console.log(err);
+        setOpenSnackError(true);
+        if (err && err.response && err.response.data) {
+            setErrorSnack(err.response.data.detail);
+        };
       });
   };
 
@@ -232,7 +235,7 @@ export default function UpdateModal({ handleClose, open, rowId, setRows }) {
           sx={{ width: "100%", fontFamily: "Montserrat", fontSize: "16px" }}
 
         >
-          {errorFloat}
+          {errorSnack}
         </Alert>
       </Snackbar>
       <Snackbar

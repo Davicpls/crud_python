@@ -1,9 +1,11 @@
-import React, { useContext } from 'react';
-import { Box, Typography, TextField, Button } from "@mui/material";
+import React from 'react';
+import { Box, Typography, TextField, Button, IconButton, InputAdornment } from "@mui/material";
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAxios } from "../Hooks/useAxios";
-import AppContext from "../Hooks/AppContext";
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
+
 
 export default function LoginBox() {
   const api = useAxios();
@@ -41,6 +43,15 @@ export default function LoginBox() {
   const [userName, setUserName] = useState(initialData);
   const [userToken, setUserToken] = useState(null)
   const [userId, setUserId] = useState(null)
+  const [showPassword, setShowPassword] = useState(false);
+
+  const handleClickShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const handleMouseDownPassword = (event) => {
+    event.preventDefault();
+  };
 
   const handleSubmitLogin = () => {
     const formData = new FormData();
@@ -75,8 +86,8 @@ export default function LoginBox() {
     }
   }, [userName]);
 
-  useEffect(()=> {
-    if (userId !== null){
+  useEffect(() => {
+    if (userId !== null) {
       sessionStorage.setItem("myId", userId);
     }
   }, [userId])
@@ -157,6 +168,7 @@ export default function LoginBox() {
           variant="outlined"
         />
         <TextField
+          type={showPassword ? 'text' : 'password'}
           error={errPw}
           helperText={passwordHelperText}
           value={passwordInputContent}
@@ -164,6 +176,19 @@ export default function LoginBox() {
           required
           label="Password"
           variant="outlined"
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  aria-label="toggle password visibility"
+                  onClick={handleClickShowPassword}
+                  onMouseDown={handleMouseDownPassword}
+                >
+                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+              </InputAdornment>
+            )
+          }}
         />
       </Box>
       <Box

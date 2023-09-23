@@ -41,7 +41,7 @@ export default function InsertModal({ handleClose, open, rows, setRows }) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
   });
 
-  const [errorFloat, setErrorFloat] = useState('');
+  const [errorSnack, setErrorSnack] = useState('');
 
   const [openSnackSuccess, setOpenSnackSuccess] = useState(false);
 
@@ -110,7 +110,7 @@ export default function InsertModal({ handleClose, open, rows, setRows }) {
   const handleSubmit = async () => {
 
     if (hasEmptyString(insertItemsForm)){
-      setErrorFloat('Não é possível enviar campos vazios');
+      setErrorSnack('Não é possível enviar campos vazios');
       setOpenSnackError(true)
       return;
     }
@@ -118,12 +118,12 @@ export default function InsertModal({ handleClose, open, rows, setRows }) {
     const floatRegex = /^-?([0-9]*[.])?[0-9]+$/;
 
     if (!floatRegex.test(insertItemsForm['price']) || !floatRegex.test(insertItemsForm['quantity'])) {
-      setErrorFloat('Insira um valor decimal válido');
+      setErrorSnack('Insira um valor decimal válido');
       setOpenSnackError(true)
       return;
     }
 
-    setErrorFloat('');
+    setErrorSnack('');
 
     insertItemsForm['quantity'] = parseFloat(insertItemsForm['quantity']);
     insertItemsForm['price'] = parseFloat(insertItemsForm['price']);
@@ -142,7 +142,10 @@ export default function InsertModal({ handleClose, open, rows, setRows }) {
         }
       })
       .catch((err) => {
-        console.log(err);
+        setOpenSnackError(true);
+        if (err && err.response && err.response.data) {
+            setErrorSnack(err.response.data.detail);
+        };
       });
   };
 
@@ -237,7 +240,7 @@ export default function InsertModal({ handleClose, open, rows, setRows }) {
           sx={{ width: "100%", fontFamily: "Montserrat", fontSize: "16px" }}
 
         >
-          {errorFloat}
+          {errorSnack}
         </Alert>
       </Snackbar>
       <Snackbar

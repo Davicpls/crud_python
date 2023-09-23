@@ -43,6 +43,8 @@ export default function RegisterBox() {
 
     const [openSnackError, setOpenSnackError] = useState(false)
 
+    const [errorSnack, setErrorSnack] = useState('');
+
     const handleClickSnack = () => {
         setOpenSnack(true);
     };
@@ -59,8 +61,10 @@ export default function RegisterBox() {
         }
         setOpenSnackError(false);
     };
-
+    
     const [emailHelperText, setEmailHelperText] = useState("");
+
+    const [nameHelperText, setNameHelperText] = useState("");
 
     const [passwordHelperText, setPasswordHelperText] = useState("");
 
@@ -78,6 +82,21 @@ export default function RegisterBox() {
         return validateEmailRegex.test(email)
     }
 
+    const validateName = (name) => {
+        const validateNameRegex = /^[a-zA-Z\s]{2,}$/
+        return validateNameRegex.test(name)
+    }
+
+    const validatePassword = (password) => {
+        if (password.length >= 6){
+            return true;
+        }
+        else {
+            return false;
+        };
+    };
+
+
     const [registerForm, setRegisterForm] = useState(defaultRegisterForm);
 
     const handleChange = (e) => {
@@ -89,21 +108,27 @@ export default function RegisterBox() {
     };
 
     const [errMail, setErrMail] = useState(false);
-    const [errPw, setErrPw] = useState(false);
+    const [errName, setErrName] = useState(false);
+    const [errPassword, setErrPassword] = useState(false);
     const [errCpf, setErrCpf] = useState(false);
 
     const handleSetErrMail = () => {
         setErrMail(true);
         setEmailHelperText("Insira um email válido");
     };
-    const handleSetErrPw = () => {
-        setErrPw(!errPw);
-        setPasswordHelperText("Incorrect password entry");
+    const handleSetErrName = () => {
+        setErrName(true);
+        setNameHelperText("O nome não pode conter símbolos, números ou ser menor que 2 caracteres.");
     };
 
     const handleSetErrCpf = () => {
-        setErrCpf(true)
-        setCpfHelperText("Insira um CPF válido")
+        setErrCpf(true);
+        setCpfHelperText("Insira um CPF válido");
+    };
+
+    const handleSetErrPassword = () => {
+        setErrPassword(true);
+        setPasswordHelperText("A senha deve conter pelo menos 6 caracteres.");
     }
 
 
@@ -114,6 +139,10 @@ export default function RegisterBox() {
         setEmailHelperText("");
         setErrCpf(false);
         setCpfHelperText("");
+        setErrName(false);
+        setNameHelperText("");
+        setErrPassword(false);
+        setPasswordHelperText("");
 
         if (!validateCPF(registerForm['cpf'])) {
             handleSetErrCpf();
@@ -124,19 +153,29 @@ export default function RegisterBox() {
             handleSetErrMail();
             hasError = true;
         };
+        if (!validateName(registerForm['name'])){
+            handleSetErrName();
+            hasError = true;
+        }
+        if (!validatePassword(registerForm['password'])){
+            handleSetErrPassword();
+            hasError = true;
+        }
 
         if (!hasError) {
-            const data = registerForm
+            const data = registerForm;
             api
                 .post('/post/new_user', data)
                 .then((res) => {
                     if (res.status === 200) {
-                        openSnack();
+                        handleClickSnack();
                     };
                 })
-                .catch((err)=> {
-                    setOpenSnackError(err)
-                    console.log(err)
+                .catch((err) => {
+                    setOpenSnackError(true);
+                    if (err && err.response && err.response.data) {
+                        setErrorSnack(err.response.data.detail);
+                    }
                 });
         };
     };
@@ -147,8 +186,8 @@ export default function RegisterBox() {
                 display: "flex",
                 justifyContent: "center",
                 flexDirection: "column",
-                height: "500px",
-                width: "500px",
+                height: "50vmin",
+                width: "60vmin",
                 backgroundColor: "rgba(108, 122, 137, 0.6)",
                 borderRadius: "1px",
                 mb: "8vh",
@@ -202,12 +241,14 @@ export default function RegisterBox() {
                     pb: "3vh",
                 }}>
                 <TextField
+                    error={errName}
                     value={registerForm.name}
                     name="name"
                     onChange={handleChange}
                     required
                     label="Nome"
                     variant="outlined"
+                    helperText={nameHelperText}
                     fullWidth
                 />
                 <TextField
@@ -234,12 +275,14 @@ export default function RegisterBox() {
                     fullWidth
                 />
                 <TextField
+                    error={errPassword}
                     value={registerForm.password}
                     name="password"
                     onChange={handleChange}
                     required
                     label="Senha"
                     variant="outlined"
+                    helperText={passwordHelperText}
                     fullWidth
                 />
             </Box>
@@ -289,7 +332,7 @@ export default function RegisterBox() {
                     sx={{ width: "100%", fontFamily: "Montserrat", fontSize: "16px" }}
 
                 >
-                    Houve um erro no cadastro do usuário
+                    {errorSnack}
                 </Alert>
             </Snackbar>
             <Snackbar

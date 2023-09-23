@@ -7,9 +7,11 @@ import { Button, IconButton } from '@mui/material';
 import UpdateModal from '../Modals/UpdateModal'
 import EditIcon from '@mui/icons-material/Edit';
 import InsertModal from '../Modals/InsertModal';
+import DeleteModal from '../Modals/DeleteModal';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { useAxios } from '../../Hooks/useAxios';
 import { styled } from '@mui/material/styles';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 
 export default function DataGridComponent({rows, setRows}) {
@@ -96,14 +98,25 @@ export default function DataGridComponent({rows, setRows}) {
   const handleOpenInsert = () => setOpenInsert(true);
   const handleCloseInsert = () => setOpenInsert(false);
 
+  const [openDelete, setOpenDelete] = useState(false);
+  const [rowIdToDelete, setRowIdToDelete] = useState(null);
+  const handleOpenDelete = () => setOpenDelete(true);
+  const handleCloseDelete = () => setOpenDelete(false);
+
   const handleEdit = useCallback((rowId) => {
     setRowIdToUpdate(rowId);
     handleOpenUpdate();
   }, []);
 
+  const handleDelete = useCallback((rowId) => {
+    setRowIdToDelete(rowId);
+    handleOpenDelete();
+    
+  }, []);
+
   const handleInsert = () => {
     handleOpenInsert();
-  }
+  };
 
   const id = useParams().id;
 
@@ -116,7 +129,7 @@ export default function DataGridComponent({rows, setRows}) {
     }
     catch (err){
       console.log(err);
-    }
+    };
   };
 
   const columns = [
@@ -164,9 +177,12 @@ export default function DataGridComponent({rows, setRows}) {
         let rowId = params.row.id;
 
         return (
-          <Box>
+          <Box sx={{display: 'flex', gap: '1vmin'}}>
             <IconButton onClick={() => handleEdit(rowId)}>
-              <EditIcon color='primary' />
+              <EditIcon color='primary'/>
+            </IconButton>
+            <IconButton onClick={() => handleDelete(rowId)}>
+              <DeleteIcon color='primary'/>
             </IconButton>
           </Box>
         )
@@ -176,7 +192,6 @@ export default function DataGridComponent({rows, setRows}) {
   ];
 
 
-  
   return (
     <>
       <UpdateModal
@@ -188,6 +203,12 @@ export default function DataGridComponent({rows, setRows}) {
       <InsertModal
         handleClose={handleCloseInsert}
         open={openInsert}
+        setRows={setRows}
+      />
+      <DeleteModal
+        handleClose={handleCloseDelete}
+        rowId={rowIdToDelete}
+        open={openDelete}
         setRows={setRows}
       />
       <Box sx={{ height: '100%', width: '100%', display: 'flex', justifyContent: 'end', alignItems: 'center', gap: '3vmin' }}>
