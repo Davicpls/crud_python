@@ -101,8 +101,6 @@ export default function InsertModal({ handleClose, open, rows, setRows }) {
     }
   };
 
-  const [isLoading, setIsLoading] = useState(false)
-
   const hasEmptyString = (obj) => {
     return Object.values(obj).some(value => value === "");
   } 

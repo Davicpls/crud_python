@@ -1,4 +1,4 @@
-import RegisterBox from "../RegisterBox";
+import RegisterBox from "../Boxes/RegisterBox";
 import { Box } from "@mui/material";
 import background from "../Images/background.avif";
 import NavBar from "../Navbar";

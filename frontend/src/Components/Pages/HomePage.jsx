@@ -1,10 +1,10 @@
-import LoginBox from "../LoginBox";
+import LoginBox from "../Boxes/LoginBox";
 import { Box } from "@mui/material";
 import background from "../Images/background.avif";
 import NavBar from "../Navbar";
 
 export default function HomePage() {
-  const title = "CRUD - GERENCIAMENTO DE ESTOQUE";
+  const title = "Login";
 
   const styleFeatures = [
     "cv11",
