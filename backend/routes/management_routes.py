@@ -29,12 +29,8 @@ async def create_user(user_reg: UserRegister = Body(None, description='Account c
                           status_code=200)
 async def insert_item(current_user: User = Depends(get_current_user),
                       new_item: InsertItem = Body(None, description='Insert new item model')):
-    try:
-        result = ItemsManagementPost.insert_an_item(new_item=new_item)
-
-        return result
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Houve um erro no retorno do seu item inputado: {e}")
+    result = ItemsManagementPost.insert_an_item(new_item=new_item)
+    return result
 
 
 @api_management_post.post('/new_transaction',
@@ -58,12 +54,8 @@ async def insert_transaction(current_user: User = Depends(get_current_user),
                             status_code=200)
 async def update_item(current_user: User = Depends(get_current_user),
                       updated_item: UpdateItem = Body(None, description='Update item model')):
-    try:
-        result = ItemsManagementPatch.patch_items(updated_item=updated_item)
-
-        return result
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Houve um erro no retorno da sua transação inputada: {e}")
+    result = ItemsManagementPatch.patch_items(updated_item=updated_item)
+    return result
 
 
 @api_management_get.get('/get_items',
@@ -72,12 +64,8 @@ async def update_item(current_user: User = Depends(get_current_user),
                         status_code=200)
 async def get_items(current_user: User = Depends(get_current_user),
                     user_id: int = Query(..., description='Get all user items')):
-    try:
-        result = ItemsManagementGet.get_items(user_id=user_id)
-
-        return result
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Houve um erro no retorno do seu item inputado: {e}")
+    result = ItemsManagementGet.get_items(user_id=user_id)
+    return result
 
 
 @api_management_delete.delete('/{row_id}',

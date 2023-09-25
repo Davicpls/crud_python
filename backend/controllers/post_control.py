@@ -78,9 +78,8 @@ class ItemsManagementPost:
 
     @classmethod
     def insert_an_item(cls, new_item) -> str:
-        # Adiciona novo item
-        try:
-            with connection.Session() as db:
+        with connection.Session() as db:
+            try:
                 insert_item = Items(name=new_item.name,
                                     description=new_item.description,
                                     quantity=new_item.quantity,
@@ -98,9 +97,11 @@ class ItemsManagementPost:
 
                 result = new_item.__repr__()
 
-            return result
-        except Exception as e:
-            print(f'Your exception -> {e}')
+            except Exception as e:
+                print(f'Your exception -> {e}')
+                raise e
+
+        return result
 
     @classmethod
     def insert_an_transaction(cls, user_id: int, item_id: int) -> str:

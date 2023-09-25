@@ -8,8 +8,8 @@ class ItemsManagementPatch:
 
     @classmethod
     def patch_items(cls, updated_item):
-        try:
-            with connection.Session() as db:
+        with connection.Session() as db:
+            try:
                 default_item = db.query(Items).filter(Items.id == updated_item.row_id).first()
                 if updated_item.name and updated_item.name.strip():
                     default_item.name = updated_item.name
@@ -24,7 +24,9 @@ class ItemsManagementPatch:
                 db.refresh(default_item)
                 result = default_item.__repr__()
 
-            return result
-        except Exception as e:
-            print(f'You exception -> {e}')
+            except Exception as e:
+                print(f'You exception -> {e}')
+                raise e
+
+        return result
 
