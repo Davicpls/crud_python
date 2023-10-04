@@ -44,9 +44,14 @@ export default function UserHomePage() {
 
   const navigate = useNavigate();
 
-  const nagivateToHome = () => {
-    navigate(('/'))
+  const navigateToHome = () => {
+    sessionStorage.removeItem("myToken");
+    sessionStorage.removeItem("myName");
+    sessionStorage.removeItem("myId");
+    navigate('/');
   }
+
+  const [invalidToken, setInvalidToken] = useState(false);
 
   const userToken = sessionStorage.getItem("myToken");
 
@@ -54,7 +59,7 @@ export default function UserHomePage() {
 
   const sessionId = sessionStorage.getItem("myId");
 
-  useEffect(() => {console.log(userName)}, [])
+  useEffect(() => { console.log(userName) }, [])
 
   const title = `Página do usuário ${userName}`;
 
@@ -85,7 +90,6 @@ export default function UserHomePage() {
 
   const { rows, setRows } = useContext(AppContext);
 
-  useEffect(() => {console.log(userToken, userName)})
 
   useEffect(() => {
     api.get(`/get/get_items?user_id=${userId}`)
@@ -95,16 +99,22 @@ export default function UserHomePage() {
         }
       })
       .catch((err) => {
+        if (err && err.response && err.response.data) {
+          if (err.response.data.detail === 'Invalid token') {
+            setInvalidToken(true);
+          }
+        }
         console.log(err)
       });
   }, []);
 
-  if (userId !== sessionId){
-    return <Navigate to="/not-allowed"/>;
+  useEffect(() => {console.log(userToken, userName, invalidToken) })
+
+  if (userId !== sessionId) {
+    return <Navigate to="/not-allowed" />;
   }
 
-
-  if (userToken === null || userName === null) {
+  if (invalidToken === true || userName === null) {
     return (
       <Box
         sx={{
@@ -123,7 +133,7 @@ export default function UserHomePage() {
         }}
       >
         Sua sessão expirou, faça login novamente!
-        <Button sx={{ fontFamily: "Montserrat", color: "green" }} onClick={nagivateToHome}>
+        <Button sx={{ fontFamily: "Montserrat", color: "green" }} onClick={navigateToHome}>
           Página de login
         </Button>
       </Box>
@@ -132,7 +142,7 @@ export default function UserHomePage() {
 
   return (
     <Box sx={{ height: "100vh" }}>
-      <NavBar title={title} />
+      <NavBar title={title} logoff={true} />
       <Box
         component="body"
         sx={{

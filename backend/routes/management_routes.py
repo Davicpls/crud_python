@@ -33,6 +33,8 @@ async def insert_item(current_user: User = Depends(get_current_user),
     return result
 
 
+
+
 @api_management_post.post('/new_transaction',
                           description='Insert a new transaction on table transactions',
                           tags=['Manager post'],
@@ -78,8 +80,14 @@ async def delete_items(current_user: User = Depends(get_current_user),
     return result
 
 
-
-
+@api_management_patch.patch('/item_for_sale',
+                            description='Update an item opening it for sale',
+                            tags=['Manager patch'],
+                            status_code=200)
+async def update_item_for_sale(current_user: User = Depends(get_current_user),
+                               updated_item: UpdateItemForSale = Body(None, description='Update item for sale model')):
+    result = ItemsManagementPatch.for_sale_patch(updated_item=updated_item)
+    return result
 
 
 

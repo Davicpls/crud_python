@@ -17,8 +17,9 @@ class ItemsManagementGet:
 
                 items = db.query(Items).filter(Items.id.in_(item_ids)).all()
 
-                df = pd.DataFrame([(item.id, item.name, item.description, item.quantity, item.price) for item in items],
-                                  columns=["id", "name", "description", "quantity", "price"])
+                df = pd.DataFrame([(item.id, item.name, item.description, item.quantity, item.price, item.for_sale)
+                                   for item in items],
+                                  columns=["id", "name", "description", "quantity", "price", "for_sale"])
 
                 return df.to_dict(orient="records")
             except Exception as e:

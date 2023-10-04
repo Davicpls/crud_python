@@ -12,9 +12,10 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import { useAxios } from '../../Hooks/useAxios';
 import { styled } from '@mui/material/styles';
 import DeleteIcon from '@mui/icons-material/Delete';
+import clsx from 'clsx';
 
 
-export default function DataGridComponent({rows, setRows}) {
+export default function DataGridComponent({ rows, setRows }) {
 
   const StyledGridOverlay = styled('div')(({ theme }) => ({
     display: 'flex',
@@ -111,7 +112,7 @@ export default function DataGridComponent({rows, setRows}) {
   const handleDelete = useCallback((rowId) => {
     setRowIdToDelete(rowId);
     handleOpenDelete();
-    
+
   }, []);
 
   const handleInsert = () => {
@@ -123,26 +124,41 @@ export default function DataGridComponent({rows, setRows}) {
   const api = useAxios();
 
   const refresh = async () => {
-    try{
+    try {
       const response = await api.get(`/get/get_items?user_id=${id}`);
       setRows(response.data);
     }
-    catch (err){
+    catch (err) {
       console.log(err);
     };
   };
 
   const columns = [
     {
+      field: 'for_sale',
+      headerName: 'A venda?',
+      width: 200,
+      headerAlign: 'center',
+      align: 'center',
+      cellClassName: (params) => {
+        if (params.value == null) {
+          return '';
+        }
+
+        return clsx('super-app', {
+          negative: params.value === true,
+          positive: params.value === false,
+        })
+      }
+    },
+    {
       field: 'id',
       headerName: 'ID',
-      width: 90,
-      backgroundColor: "black"
     },
     {
       field: 'name',
       headerName: 'Nome do Item',
-      width: 400,
+      width: 300,
       headerAlign: 'center',
       align: 'center'
     },
@@ -162,7 +178,7 @@ export default function DataGridComponent({rows, setRows}) {
     },
     {
       field: 'price',
-      headerName: 'Preço',
+      headerName: 'Preço da unidade',
       width: 250,
       headerAlign: 'center',
       align: 'center'
@@ -170,19 +186,19 @@ export default function DataGridComponent({rows, setRows}) {
     {
       field: 'actions',
       headerName: 'Ações',
-      width: 422,
+      width: 300,
       headerAlign: 'center',
       align: 'center',
       renderCell: (params) => {
         let rowId = params.row.id;
 
         return (
-          <Box sx={{display: 'flex', gap: '1vmin'}}>
+          <Box sx={{ display: 'flex', gap: '1vmin' }}>
             <IconButton onClick={() => handleEdit(rowId)}>
-              <EditIcon color='primary'/>
+              <EditIcon color='primary' />
             </IconButton>
             <IconButton onClick={() => handleDelete(rowId)}>
-              <DeleteIcon color='primary'/>
+              <DeleteIcon color='primary' />
             </IconButton>
           </Box>
         )
@@ -212,14 +228,25 @@ export default function DataGridComponent({rows, setRows}) {
         setRows={setRows}
       />
       <Box sx={{ height: '100%', width: '100%', display: 'flex', justifyContent: 'end', alignItems: 'center', gap: '3vmin' }}>
-      <IconButton onClick={refresh}>
-          <RefreshIcon color='primary'/>
-          </IconButton>
-        <Button onClick={handleInsert} sx={{mr: '20px'}}>
+        <IconButton onClick={refresh}>
+          <RefreshIcon color='primary' />
+        </IconButton>
+        <Button onClick={handleInsert} sx={{ mr: '20px' }}>
           Inserir Item
         </Button>
       </Box>
-      <Box sx={{ height: '75vh', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'end' }}>
+      <Box sx={{
+        height: '75vh', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', '& .super-app.negative': {
+          backgroundColor: 'rgba(157, 255, 118, 0.49)',
+          color: '#1a3e72',
+          fontWeight: '600',
+        },
+        '& .super-app.positive': {
+          backgroundColor: '#d47483',
+          color: '#1a3e72',
+          fontWeight: '600',
+        }
+      }}>
         <DataGrid
           autoHeight
           sx={{ mt: '5px', '--DataGrid-overlayHeight': '300px' }}
@@ -227,6 +254,11 @@ export default function DataGridComponent({rows, setRows}) {
           columns={columns}
           initialState={{
             pagination: { paginationModel: { pageSize: 10 } },
+            columns: {
+              columnVisibilityModel: {
+                id: false,
+              },
+            },
           }}
           slots={{ noRowsOverlay: CustomNoRowsOverlay }}
           pageSizeOptions={[5, 10, 15]}

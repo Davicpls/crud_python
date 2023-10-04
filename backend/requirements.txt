@@ -9,4 +9,5 @@ SQLAlchemy>=2.0.19
 uvicorn>=0.23.1
 python-dotenv>=1.0.0
 bcrypt>=4.0.1
+pydantic[email]>=2.0.0
 

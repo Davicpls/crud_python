@@ -1,4 +1,4 @@
-from sqlalchemy import String, Float, ForeignKey, TIMESTAMP, DateTime, func
+from sqlalchemy import String, Float, ForeignKey, TIMESTAMP, DateTime, func, BOOLEAN
 from sqlalchemy.orm import DeclarativeBase, relationship, Mapped, mapped_column
 from configs.db_conn import DbConn
 from typing import List
@@ -39,13 +39,14 @@ class Items(Base):
     description: Mapped[str] = mapped_column(String(100))
     quantity: Mapped[float] = mapped_column(Float)
     price: Mapped[float] = mapped_column(Float)
+    for_sale: Mapped[BOOLEAN] = mapped_column(BOOLEAN, default=False)
 
     transactions: Mapped[List["Transactions"]] = relationship(back_populates="items", cascade="all, delete-orphan")
     user_items: Mapped[List["UserItems"]] = relationship(back_populates="items", cascade="all, delete-orphan")
 
     def __repr__(self) -> str:
         return f"Items(id={self.id!r}, name={self.name!r}, description={self.description!r}," \
-               f" quantity={self.quantity!r}, price={self.price!r})"
+               f" quantity={self.quantity!r}, price={self.price!r}, for_sale{self.for_sale!r})"
 
 
 class Transactions(Base):

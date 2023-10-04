@@ -30,3 +30,8 @@ class InsertTransaction(BaseModel):
     item_id: int
 
 
+class UpdateItemForSale(BaseModel):
+    row_id: int
+    for_sale: bool
+
+
