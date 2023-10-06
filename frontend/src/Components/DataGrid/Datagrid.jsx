@@ -146,8 +146,8 @@ export default function DataGridComponent({ rows, setRows }) {
         }
 
         return clsx('super-app', {
-          negative: params.value === true,
-          positive: params.value === false,
+          negative: params.value === 'Sim' ,
+          positive: params.value === 'Não'
         })
       }
     },

@@ -77,8 +77,6 @@ export default function DeleteModal({ handleClose, open, rowId, setRows }) {
 
     const intId = parseInt(rowId);
 
-    console.log(intId)
-
     const handleSubmit = async () => {
         api.delete(`delete/${intId}`)
             .then((res) => {

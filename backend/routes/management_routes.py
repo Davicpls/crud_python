@@ -33,8 +33,6 @@ async def insert_item(current_user: User = Depends(get_current_user),
     return result
 
 
-
-
 @api_management_post.post('/new_transaction',
                           description='Insert a new transaction on table transactions',
                           tags=['Manager post'],
@@ -66,7 +64,7 @@ async def update_item(current_user: User = Depends(get_current_user),
                         status_code=200)
 async def get_items(current_user: User = Depends(get_current_user),
                     user_id: int = Query(..., description='Get all user items')):
-    result = ItemsManagementGet.get_items(user_id=user_id)
+    result = ItemsManagementGet.get_items_id(user_id=user_id)
     return result
 
 
@@ -90,6 +88,23 @@ async def update_item_for_sale(current_user: User = Depends(get_current_user),
     return result
 
 
+@api_management_get.get('/items_for_sale',
+                        description='Get all items that are for sale',
+                        tags=['Manager get'],
+                        status_code=200)
+async def get_all_items_for_sale(current_user: User = Depends(get_current_user)):
+    result = ItemsManagementGet.get_items_for_sale()
+    return result
+
+
+@api_management_patch.patch('/buy_item',
+                            description='Update the user item of an item',
+                            tags=['Manager patch'],
+                            status_code=200)
+async def buy_item(current_user: User = Depends(get_current_user),
+                   buy_transaction: InsertTransaction = Body(None, description='Transaction model')):
+    result = ItemsManagementPatch.exchange_user_items(buy_transaction=buy_transaction)
+    return result
 
 
 

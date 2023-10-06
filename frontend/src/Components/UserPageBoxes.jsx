@@ -1,12 +1,12 @@
 import { Card, Box } from "@mui/material";
+import DataGridComponent from "./DataGrid/DatagridSales";
 
 
-export default function UserPageBoxes() {
+export default function UserPageBoxes({rows, setRows}) {
 
   return (
     <Box sx={{
       display: "flex",
-      justifyContent: "end",
       alignItems: "center",
       height: "100%",
     }} >
@@ -17,9 +17,11 @@ export default function UserPageBoxes() {
           width: "25vw",
           p: "1vmin",
           mx: "1vmin",
+          flexGrow: 1,
         }}
       >
-        sdsds
+        Tabela de compra
+        <DataGridComponent rows={rows} setRows={setRows}/>
       </Card>
       <Card
         sx={{
@@ -28,28 +30,7 @@ export default function UserPageBoxes() {
           width: "25vw",
           p: "1vmin",
           mx: "1vmin",
-        }}
-      >
-        sdsds
-      </Card>
-      <Card
-        sx={{
-          backgroundColor: "white",
-          height: "25vw",
-          width: "25vw",
-          p: "1vmin",
-          mx: "1vmin",
-        }}
-      >
-        sdsds
-      </Card>
-      <Card
-        sx={{
-          backgroundColor: "white",
-          height: "25vw",
-          width: "25vw",
-          p: "1vmin",
-          mx: "1vmin",
+          flexGrow: 1,
         }}
       >
         sdsds

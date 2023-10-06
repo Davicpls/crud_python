@@ -59,8 +59,6 @@ export default function UserHomePage() {
 
   const sessionId = sessionStorage.getItem("myId");
 
-  useEffect(() => { console.log(userName) }, [])
-
   const title = `Página do usuário ${userName}`;
 
   const styleFeatures = [
@@ -84,17 +82,22 @@ export default function UserHomePage() {
 
   const params = useParams();
 
-  const userId = params.id
+  const userId = params.id;
 
-  const api = useAxios()
+  const api = useAxios();
 
   const { rows, setRows } = useContext(AppContext);
+
+  const [salesRows, setSalesRows] = useState(null);
 
 
   useEffect(() => {
     api.get(`/get/get_items?user_id=${userId}`)
       .then((res) => {
         if (res.status === 200) {
+          res.data.forEach(data => {
+            data['for_sale'] === false ? data['for_sale'] = 'Não' : data['for_sale'] = 'Sim';
+          });
           setRows(res.data)
         }
       })
@@ -108,7 +111,18 @@ export default function UserHomePage() {
       });
   }, []);
 
-  useEffect(() => {console.log(userToken, userName, invalidToken) })
+  useEffect(() => {console.log(invalidToken)}, [invalidToken])
+
+  useEffect(() => {
+    api.get('get/items_for_sale')
+    .then((res) => {
+      setSalesRows(res.data);
+    })
+    .catch((err) => {
+      console.log(err)
+    });
+  }, []);
+
 
   if (userId !== sessionId) {
     return <Navigate to="/not-allowed" />;
@@ -140,6 +154,29 @@ export default function UserHomePage() {
     );
   }
 
+  if (!salesRows) {
+    return (
+      <Box
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        flexDirection: "column",
+        mb: "2vmin",
+        height: "100vh",
+        width: "100vw",
+        fontFamily: "Montserrat",
+        WebkitFontSmoothing: "antialised",
+        MozOsxFontSmoothing: "grayscale",
+        textRendering: "optimizeLegibility",
+        fontFeatureSettings: styleSettings,
+      }}
+    >
+      Carregando
+    </Box>
+    )
+  }
+
   return (
     <Box sx={{ height: "100vh" }}>
       <NavBar title={title} logoff={true} />
@@ -162,7 +199,7 @@ export default function UserHomePage() {
           <Tab label="Tabela de gerenciamento" />
         </Tabs>
         <TabPanel value={value} index={0}>
-          <UserPageBoxes />
+          <UserPageBoxes rows={salesRows} setRows={setSalesRows}/>
         </TabPanel>
         <TabPanel value={value} index={1}>
           <DataGridComponent rows={rows} setRows={setRows} />

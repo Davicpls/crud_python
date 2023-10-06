@@ -75,7 +75,6 @@ export default function InsertModal({ handleClose, open, rows, setRows }) {
   };
 
   const [insertItemsForm, setInsertItemsForm] = useState(defaultInsertItems);
-  React.useEffect(() => { console.log(insertItemsForm) })
 
   const handleChange = (e) => {
     const { name, value } = e.target;
