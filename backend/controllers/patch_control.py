@@ -31,14 +31,39 @@ class ItemsManagementPatch:
         return result
 
     @classmethod
-    def for_sale_patch(cls, updated_item):
+    def for_sale_patch_true(cls, updated_item):
         with connection.Session() as db:
             try:
                 with db.begin():
                     default_item = db.query(Items).filter(Items.id == updated_item.row_id).first()
 
                     if not default_item:
-                        raise ValueError(f"No item found with id {updated_item.row_id}")
+                        raise Exception(f"No item found with id {updated_item.row_id}")
+
+                if default_item.for_sale:
+                    raise Exception(f"The item with the id {updated_item.row_id} is already for sell")
+
+                default_item.for_sale = updated_item.for_sale
+                db.commit()
+
+            except Exception as e:
+                print(f'You exception -> {e}')
+                raise e
+
+        return 200
+
+    @classmethod
+    def for_sale_patch_false(cls, updated_item):
+        with connection.Session() as db:
+            try:
+                with db.begin():
+                    default_item = db.query(Items).filter(Items.id == updated_item.row_id).first()
+
+                    if not default_item:
+                        raise Exception(f"No item found with id {updated_item.row_id}")
+
+                if default_item.for_sale == False:
+                    raise Exception(f"The item with the id {updated_item.row_id} is not for sell")
 
                 default_item.for_sale = updated_item.for_sale
                 db.commit()
@@ -54,7 +79,7 @@ class ItemsManagementPatch:
         with connection.Session() as db:
             try:
                 with db.begin():
-                    user_item = db.query(UserItems).filter(UserItems.id == buy_transaction.item_id).first()
+                    user_item = db.query(UserItems).filter(UserItems.item_id == buy_transaction.item_id).first()
 
                     if not user_item:
                         raise ValueError(f"No item found with id {buy_transaction.item_id}")
@@ -62,6 +87,8 @@ class ItemsManagementPatch:
                 new_transaction = Transactions(user_id=buy_transaction.user_id, item_id=buy_transaction.item_id)
                 db.add(new_transaction)
                 user_item.user_id = buy_transaction.user_id
+                item = db.query(Items).filter(Items.id == buy_transaction.item_id).first()
+                item.for_sale = False
 
                 db.commit()
             except Exception as e:

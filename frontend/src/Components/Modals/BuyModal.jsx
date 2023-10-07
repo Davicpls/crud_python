@@ -31,7 +31,7 @@ const style = {
 };
 
 
-export default function BuyModal({ handleClose, open, rowId, setRows }) {
+export default function BuyModal({ handleClose, open, rowId, setRows, rows }) {
 
     const userId = useParams().id
 
@@ -65,15 +65,16 @@ export default function BuyModal({ handleClose, open, rowId, setRows }) {
     const api = useAxios();
 
 
-/*     const refresh = async () => {
+    const refresh = async () => {
         try {
-            const response = await api.get(`/get/get_items?user_id=${id}`);
+            const response = await api.get(`get/items_for_sale?user_id=${userId}`);
             setRows(response.data);
         }
         catch (err) {
             console.log(err);
         }
-    }; */
+    };
+
 
     const intId = parseInt(rowId);
 
@@ -83,6 +84,7 @@ export default function BuyModal({ handleClose, open, rowId, setRows }) {
             .then((res) => {
                 if (res.status === 200) {
                     handleClickSnack();
+                    refresh();
                 };
             })
             .catch((err) => {
@@ -92,6 +94,7 @@ export default function BuyModal({ handleClose, open, rowId, setRows }) {
                 };
             });
     };
+    
 
     return (
         <>

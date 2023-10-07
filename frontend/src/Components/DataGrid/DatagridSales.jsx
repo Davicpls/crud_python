@@ -1,16 +1,13 @@
 import * as React from 'react';
 import { useCallback, useState } from 'react';
-import { useParams } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import { DataGrid } from '@mui/x-data-grid';
-import { Button, IconButton } from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
-import { useAxios } from '../../Hooks/useAxios';
+import { Button } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import BuyModal from '../Modals/BuyModal';
 
 
-export default function DataGridComponent({ rows, setRows }) {
+export default function DataGridComponent({ salesRows, setSalesRows }) {
 
     const StyledGridOverlay = styled('div')(({ theme }) => ({
         display: 'flex',
@@ -108,16 +105,16 @@ export default function DataGridComponent({ rows, setRows }) {
         {
             field: 'comprar',
             headerName: 'Comprar',
-            width: 200,
+            width: 175,
             headerAlign: 'center',
             align: 'center',
             renderCell: ((params) => {
                 let rowId = params.row.id;
                 return (
                     <Box sx={{ display: 'flex', gap: '1vmin' }}>
-                        <IconButton onClick={() => handleBuy(rowId)}>
-                            <EditIcon color='primary' />
-                        </IconButton>
+                        <Button variant='contained' onClick={() => handleBuy(rowId)}>
+                            Comprar
+                        </Button>
                     </Box>
                 )
             })
@@ -125,28 +122,28 @@ export default function DataGridComponent({ rows, setRows }) {
         {
             field: 'name',
             headerName: 'Nome do Item',
-            width: 200,
+            width: 175,
             headerAlign: 'center',
             align: 'center'
         },
         {
             field: 'description',
             headerName: 'Descrição',
-            width: 200,
+            width: 175,
             headerAlign: 'center',
             align: 'center'
         },
         {
             field: 'quantity',
             headerName: 'Quantidade',
-            width: 200,
+            width: 175,
             headerAlign: 'center',
             align: 'center'
         },
         {
             field: 'price',
             headerName: 'Preço da unidade',
-            width: 200,
+            width: 175,
             headerAlign: 'center',
             align: 'center'
         }
@@ -159,24 +156,16 @@ export default function DataGridComponent({ rows, setRows }) {
                 handleClose={handleCloseBuy}
                 rowId={rowIdToBuy}
                 open={openBuy}
-                setRows={setRows}
+                setRows={setSalesRows}
+                rows={salesRows}
             />
             <Box sx={{
-                height: '90%', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', '& .super-app.negative': {
-                    backgroundColor: 'rgba(157, 255, 118, 0.49)',
-                    color: '#1a3e72',
-                    fontWeight: '600',
-                },
-                '& .super-app.positive': {
-                    backgroundColor: '#d47483',
-                    color: '#1a3e72',
-                    fontWeight: '600',
-                }
+                height: '90%', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center'
             }}>
                 <DataGrid
                     autoHeight
-                    sx={{ width: "100%", mt: '5px', '--DataGrid-overlayHeight': '200px' }}
-                    rows={rows}
+                    sx={{ width: "100%", mt: '20px', '--DataGrid-overlayHeight': '200px' }}
+                    rows={salesRows}
                     columns={columns}
                     initialState={{
                         pagination: { paginationModel: { pageSize: 10 } },

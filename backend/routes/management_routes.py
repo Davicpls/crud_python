@@ -82,9 +82,19 @@ async def delete_items(current_user: User = Depends(get_current_user),
                             description='Update an item opening it for sale',
                             tags=['Manager patch'],
                             status_code=200)
-async def update_item_for_sale(current_user: User = Depends(get_current_user),
-                               updated_item: UpdateItemForSale = Body(None, description='Update item for sale model')):
-    result = ItemsManagementPatch.for_sale_patch(updated_item=updated_item)
+async def update_item_for_sale_true(current_user: User = Depends(get_current_user),
+                                    updated_item: UpdateItemForSale = Body(None, description='Update item for sale model')):
+    result = ItemsManagementPatch.for_sale_patch_true(updated_item=updated_item)
+    return result
+
+
+@api_management_patch.patch('/item_for_sale_false',
+                            description='Update an item opening it for sale',
+                            tags=['Manager patch'],
+                            status_code=200)
+async def update_item_for_sale_false(current_user: User = Depends(get_current_user),
+                                     updated_item: UpdateItemForSale = Body(None, description='Update item for sale model')):
+    result = ItemsManagementPatch.for_sale_patch_false(updated_item=updated_item)
     return result
 
 
@@ -92,8 +102,19 @@ async def update_item_for_sale(current_user: User = Depends(get_current_user),
                         description='Get all items that are for sale',
                         tags=['Manager get'],
                         status_code=200)
-async def get_all_items_for_sale(current_user: User = Depends(get_current_user)):
-    result = ItemsManagementGet.get_items_for_sale()
+async def get_all_items_for_sale(current_user: User = Depends(get_current_user),
+                                 user_id: int = Query(None, description='User Id')):
+    result = ItemsManagementGet.get_items_for_sale(user_id=user_id)
+    return result
+
+
+@api_management_get.get('/user_items_for_sale',
+                        description='Get all items that are for sale',
+                        tags=['Manager get'],
+                        status_code=200)
+async def get_user_items_for_sale(current_user: User = Depends(get_current_user),
+                                  user_id: int = Query(None, description='User Id')):
+    result = ItemsManagementGet.get_user_items_for_sale(user_id=user_id)
     return result
 
 
@@ -105,9 +126,4 @@ async def buy_item(current_user: User = Depends(get_current_user),
                    buy_transaction: InsertTransaction = Body(None, description='Transaction model')):
     result = ItemsManagementPatch.exchange_user_items(buy_transaction=buy_transaction)
     return result
-
-
-
-
-
 

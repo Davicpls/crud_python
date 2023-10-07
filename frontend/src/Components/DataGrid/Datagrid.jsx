@@ -12,7 +12,11 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import { useAxios } from '../../Hooks/useAxios';
 import { styled } from '@mui/material/styles';
 import DeleteIcon from '@mui/icons-material/Delete';
-import clsx from 'clsx';
+import SellIcon from '@mui/icons-material/Sell';
+import SellModal from '../Modals/SellModal';
+import CancelSellModal from '../Modals/CancelSellModal'
+import BackspaceIcon from '@mui/icons-material/Backspace';
+
 
 
 export default function DataGridComponent({ rows, setRows }) {
@@ -104,6 +108,27 @@ export default function DataGridComponent({ rows, setRows }) {
   const handleOpenDelete = () => setOpenDelete(true);
   const handleCloseDelete = () => setOpenDelete(false);
 
+  const [openSell, setOpenSell] = useState(false);
+  const [rowIdToSell, setRowIdToSell] = useState(null);
+  const handleOpenSell = () => setOpenSell(true);
+  const handleCloseSell = () => setOpenSell(false);
+
+  const [openCancelSell, setOpenCancelSell] = useState(false);
+  const [rowIdToCancelSell, setRowIdToCancelSell] = useState(null);
+  const handleOpenCancelSell = () => setOpenCancelSell(true);
+  const handleCloseCancelSell = () => setOpenCancelSell(false);
+
+  const handleCancelSell = useCallback((rowId) => {
+    setRowIdToCancelSell(rowId);
+    handleOpenCancelSell();
+  })
+
+
+  const handleSell = useCallback((rowId) => {
+    setRowIdToSell(rowId);
+    handleOpenSell();
+  }, []);
+
   const handleEdit = useCallback((rowId) => {
     setRowIdToUpdate(rowId);
     handleOpenUpdate();
@@ -123,9 +148,13 @@ export default function DataGridComponent({ rows, setRows }) {
 
   const api = useAxios();
 
+
   const refresh = async () => {
     try {
       const response = await api.get(`/get/get_items?user_id=${id}`);
+      response.data.forEach(data => {
+        data['for_sale'] === false ? data['for_sale'] = 'Não' : data['for_sale'] = 'Sim';
+      });
       setRows(response.data);
     }
     catch (err) {
@@ -140,16 +169,6 @@ export default function DataGridComponent({ rows, setRows }) {
       width: 200,
       headerAlign: 'center',
       align: 'center',
-      cellClassName: (params) => {
-        if (params.value == null) {
-          return '';
-        }
-
-        return clsx('super-app', {
-          negative: params.value === 'Sim' ,
-          positive: params.value === 'Não'
-        })
-      }
     },
     {
       field: 'id',
@@ -194,6 +213,12 @@ export default function DataGridComponent({ rows, setRows }) {
 
         return (
           <Box sx={{ display: 'flex', gap: '1vmin' }}>
+            <IconButton onClick={() => handleSell(rowId)}>
+              <SellIcon color='primary' />
+            </IconButton>
+            <IconButton onClick={() => handleCancelSell(rowId)}>
+              <BackspaceIcon color='primary' />
+            </IconButton>
             <IconButton onClick={() => handleEdit(rowId)}>
               <EditIcon color='primary' />
             </IconButton>
@@ -207,9 +232,20 @@ export default function DataGridComponent({ rows, setRows }) {
     }
   ];
 
-
   return (
     <>
+      <CancelSellModal
+        handleClose={handleCloseCancelSell}
+        open={openCancelSell}
+        rowId={rowIdToCancelSell}
+        setRows={setRows}
+      />
+      <SellModal
+        handleClose={handleCloseSell}
+        open={openSell}
+        rowId={rowIdToSell}
+        setRows={setRows}
+      />
       <UpdateModal
         handleClose={handleCloseUpdate}
         open={openUpdate}
@@ -228,30 +264,34 @@ export default function DataGridComponent({ rows, setRows }) {
         setRows={setRows}
       />
       <Box sx={{ height: '100%', width: '100%', display: 'flex', justifyContent: 'end', alignItems: 'center', gap: '3vmin' }}>
-        <IconButton onClick={refresh}>
+        <IconButton onClick={() => refresh()}>
           <RefreshIcon color='primary' />
         </IconButton>
-        <Button onClick={handleInsert} sx={{ mr: '20px' }}>
+        <Button onClick={() => handleInsert()} sx={{ mr: '20px' }}>
           Inserir Item
         </Button>
       </Box>
       <Box sx={{
-        height: '75vh', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', '& .super-app.negative': {
+        height: '75vh', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', '& .true': {
           backgroundColor: 'rgba(157, 255, 118, 0.49)',
           color: '#1a3e72',
-          fontWeight: '600',
         },
-        '& .super-app.positive': {
+        '& .false': {
           backgroundColor: '#d47483',
           color: '#1a3e72',
-          fontWeight: '600',
-        }
+        },
       }}>
         <DataGrid
           autoHeight
           sx={{ mt: '5px', '--DataGrid-overlayHeight': '300px' }}
           rows={rows}
           columns={columns}
+          getCellClassName={(params) => {
+            if (params.field === 'name' || params.field === 'description' || params.field === 'quantity' || params.field === 'price' || params.value == null) {
+              return '';
+            }
+            return params.value === 'Não' ? 'false' : 'true';
+          }}
           initialState={{
             pagination: { paginationModel: { pageSize: 10 } },
             columns: {

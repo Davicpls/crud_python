@@ -26,10 +26,31 @@ class ItemsManagementGet:
                 raise e
 
     @classmethod
-    def get_items_for_sale(cls):
+    def get_items_for_sale(cls, user_id):
         with connection.Session() as db:
             try:
-                items_for_sale = db.query(Items).filter(Items.for_sale)
+                items_for_sale = (db.query(Items)
+                                  .join(UserItems, UserItems.item_id == Items.id)
+                                  .filter(Items.for_sale == True, UserItems.user_id != user_id)
+                                  .all())
+
+                df = pd.DataFrame([(item.id, item.name, item.description, item.quantity, item.price, item.for_sale)
+                                   for item in items_for_sale],
+                                  columns=["id", "name", "description", "quantity", "price", "for_sale"])
+
+                return df.to_dict(orient="records")
+            except Exception as e:
+                print(f'Your exception -> {e}')
+                raise e
+
+    @classmethod
+    def get_user_items_for_sale(cls, user_id):
+        with connection.Session() as db:
+            try:
+                items_for_sale = (db.query(Items)
+                                  .join(UserItems, UserItems.item_id == Items.id)
+                                  .filter(Items.for_sale == True, UserItems.user_id == user_id)
+                                  .all())
 
                 df = pd.DataFrame([(item.id, item.name, item.description, item.quantity, item.price, item.for_sale)
                                    for item in items_for_sale],

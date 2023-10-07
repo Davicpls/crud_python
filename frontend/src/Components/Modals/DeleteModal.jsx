@@ -68,6 +68,9 @@ export default function DeleteModal({ handleClose, open, rowId, setRows }) {
     const refresh = async () => {
         try {
             const response = await api.get(`/get/get_items?user_id=${id}`);
+            response.data.forEach(data => {
+                data['for_sale'] === false ? data['for_sale'] = 'Não' : data['for_sale'] = 'Sim';
+              });
             setRows(response.data);
         }
         catch (err) {
@@ -89,7 +92,10 @@ export default function DeleteModal({ handleClose, open, rowId, setRows }) {
                 setOpenSnackError(true);
                 if (err && err.response && err.response.data) {
                     setErrorSnack(err.response.data.detail);
-                };
+                }
+                else {
+                    setErrorSnack('Erro ao deletar o item')
+                }
             });
     };
 

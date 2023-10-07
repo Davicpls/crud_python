@@ -53,8 +53,6 @@ export default function UserHomePage() {
 
   const [invalidToken, setInvalidToken] = useState(false);
 
-  const userToken = sessionStorage.getItem("myToken");
-
   const userName = sessionStorage.getItem("myName");
 
   const sessionId = sessionStorage.getItem("myId");
@@ -90,6 +88,23 @@ export default function UserHomePage() {
 
   const [salesRows, setSalesRows] = useState(null);
 
+  const [userSalesRows, setUserSalesRows] = useState(null);
+
+  useEffect(() => {
+    api.get(`/get/user_items_for_sale?user_id=${userId}`)
+      .then((res) => {
+        if (res.status === 200) {
+          res.data.forEach(data => {
+            data['for_sale'] === false ? data['for_sale'] = 'Não' : data['for_sale'] = 'Sim';
+          });
+          setUserSalesRows(res.data)
+        }
+      })
+      .catch((err) => {
+        console.log(err)
+      });
+  }, []);
+
 
   useEffect(() => {
     api.get(`/get/get_items?user_id=${userId}`)
@@ -103,7 +118,7 @@ export default function UserHomePage() {
       })
       .catch((err) => {
         if (err && err.response && err.response.data) {
-          if (err.response.data.detail === 'Invalid token') {
+          if (err.response.data.detail === 'Invalid token' || err.config.data === undefined) {
             setInvalidToken(true);
           }
         }
@@ -111,16 +126,14 @@ export default function UserHomePage() {
       });
   }, []);
 
-  useEffect(() => {console.log(invalidToken)}, [invalidToken])
-
   useEffect(() => {
-    api.get('get/items_for_sale')
-    .then((res) => {
-      setSalesRows(res.data);
-    })
-    .catch((err) => {
-      console.log(err)
-    });
+    api.get(`get/items_for_sale?user_id=${userId}`)
+      .then((res) => {
+        setSalesRows(res.data);
+      })
+      .catch((err) => {
+        console.log(err)
+      });
   }, []);
 
 
@@ -157,23 +170,23 @@ export default function UserHomePage() {
   if (!salesRows) {
     return (
       <Box
-      sx={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        flexDirection: "column",
-        mb: "2vmin",
-        height: "100vh",
-        width: "100vw",
-        fontFamily: "Montserrat",
-        WebkitFontSmoothing: "antialised",
-        MozOsxFontSmoothing: "grayscale",
-        textRendering: "optimizeLegibility",
-        fontFeatureSettings: styleSettings,
-      }}
-    >
-      Carregando
-    </Box>
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          flexDirection: "column",
+          mb: "2vmin",
+          height: "100vh",
+          width: "100vw",
+          fontFamily: "Montserrat",
+          WebkitFontSmoothing: "antialised",
+          MozOsxFontSmoothing: "grayscale",
+          textRendering: "optimizeLegibility",
+          fontFeatureSettings: styleSettings,
+        }}
+      >
+        Carregando
+      </Box>
     )
   }
 
@@ -199,7 +212,7 @@ export default function UserHomePage() {
           <Tab label="Tabela de gerenciamento" />
         </Tabs>
         <TabPanel value={value} index={0}>
-          <UserPageBoxes rows={salesRows} setRows={setSalesRows}/>
+          <UserPageBoxes userSalesRows={userSalesRows} setUserSalesRows={setUserSalesRows} salesRows={salesRows} setSalesRows={setSalesRows} />
         </TabPanel>
         <TabPanel value={value} index={1}>
           <DataGridComponent rows={rows} setRows={setRows} />
