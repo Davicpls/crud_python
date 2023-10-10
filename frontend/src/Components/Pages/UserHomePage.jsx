@@ -1,15 +1,16 @@
 import React, { useContext, useState, useEffect } from "react";
-import { Box, Button, Tab, Tabs, Typography } from "@mui/material";
+import { Box, Button, Tab, Tabs, Typography, TextField, IconButton, Tooltip } from "@mui/material";
 import NavBar from "../Navbar";
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 import UserPageBoxes from "../UserPageBoxes";
 import AppContext from "../../Hooks/AppContext";
 import { useNavigate, useParams, Navigate } from "react-router-dom";
-import DataGridComponent from "../DataGrid/Datagrid"
+import DataGridComponent from "../DataGrid/Datagrid";
 import { useAxios } from "../../Hooks/useAxios";
+import AddIcon from '@mui/icons-material/Add';
+import AddBalanceModal from "../Modals/AddBalanceModal";
 
 export default function UserHomePage() {
-
   function TabPanel(props) {
     const { children, value, index, ...other } = props;
 
@@ -48,8 +49,8 @@ export default function UserHomePage() {
     sessionStorage.removeItem("myToken");
     sessionStorage.removeItem("myName");
     sessionStorage.removeItem("myId");
-    navigate('/');
-  }
+    navigate("/");
+  };
 
   const [invalidToken, setInvalidToken] = useState(false);
 
@@ -90,15 +91,20 @@ export default function UserHomePage() {
 
   const [userSalesRows, setUserSalesRows] = useState(null);
 
+  const [saldo, setSaldo] = useState(`R$ ${0}`);
+
+
+  const [openBalance, setOpenBalance] = useState(false);
+  const handleOpenBalance = () => setOpenBalance(true);
+
+
   useEffect(() => {
-    api.get(`/get/user_items_for_sale?user_id=${userId}`)
+    api
+      .get(`/get/get_user_balance?user_id=${userId}`)
       .then((res) => {
         if (res.status === 200) {
-          res.data.forEach(data => {
-            data['for_sale'] === false ? data['for_sale'] = 'Não' : data['for_sale'] = 'Sim';
-          });
-          setUserSalesRows(res.data)
-        }
+          setSaldo(`R$ ${res.data.balance}`);
+        };
       })
       .catch((err) => {
         console.log(err)
@@ -107,35 +113,59 @@ export default function UserHomePage() {
 
 
   useEffect(() => {
-    api.get(`/get/get_items?user_id=${userId}`)
+    api
+      .get(`/get/user_items_for_sale?user_id=${userId}`)
       .then((res) => {
         if (res.status === 200) {
-          res.data.forEach(data => {
-            data['for_sale'] === false ? data['for_sale'] = 'Não' : data['for_sale'] = 'Sim';
+          res.data.forEach((data) => {
+            data["for_sale"] === false
+              ? (data["for_sale"] = "Não")
+              : (data["for_sale"] = "Sim");
           });
-          setRows(res.data)
+          setUserSalesRows(res.data);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
+
+  useEffect(() => {
+    api
+      .get(`/get/get_items?user_id=${userId}`)
+      .then((res) => {
+        if (res.status === 200) {
+          res.data.forEach((data) => {
+            data["for_sale"] === false
+              ? (data["for_sale"] = "Não")
+              : (data["for_sale"] = "Sim");
+          });
+          setRows(res.data);
         }
       })
       .catch((err) => {
         if (err && err.response && err.response.data) {
-          if (err.response.data.detail === 'Invalid token' || err.config.data === undefined) {
+          if (
+            err.response.data.detail === "Invalid token" ||
+            err.config.data === undefined
+          ) {
             setInvalidToken(true);
           }
         }
-        console.log(err)
+        console.log(err);
       });
   }, []);
 
   useEffect(() => {
-    api.get(`get/items_for_sale?user_id=${userId}`)
+    api
+      .get(`get/items_for_sale?user_id=${userId}`)
       .then((res) => {
         setSalesRows(res.data);
       })
       .catch((err) => {
-        console.log(err)
+        console.log(err);
       });
   }, []);
-
 
   if (userId !== sessionId) {
     return <Navigate to="/not-allowed" />;
@@ -160,7 +190,10 @@ export default function UserHomePage() {
         }}
       >
         Sua sessão expirou, faça login novamente!
-        <Button sx={{ fontFamily: "Montserrat", color: "green" }} onClick={navigateToHome}>
+        <Button
+          sx={{ fontFamily: "Montserrat", color: "green" }}
+          onClick={navigateToHome}
+        >
           Página de login
         </Button>
       </Box>
@@ -187,7 +220,7 @@ export default function UserHomePage() {
       >
         Carregando
       </Box>
-    )
+    );
   }
 
   return (
@@ -200,11 +233,10 @@ export default function UserHomePage() {
           justifyContent: "start",
           flexDirection: "column",
           backgroundColor: "white",
-          color: "blue",
+          color: "black",
           fontSize: "50px",
-          fontFamily: "Montserrat",
           height: "100%",
-          m: "1vmin"
+          m: "1vmin",
         }}
       >
         <Tabs value={value} onChange={handleChange}>
@@ -212,12 +244,39 @@ export default function UserHomePage() {
           <Tab label="Tabela de gerenciamento" />
         </Tabs>
         <TabPanel value={value} index={0}>
-          <UserPageBoxes userSalesRows={userSalesRows} setUserSalesRows={setUserSalesRows} salesRows={salesRows} setSalesRows={setSalesRows} />
+          <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "2vmin", mb: "15px", pr: "85vmin" }}>
+            <Typography>
+              Seu saldo
+            </Typography>
+            <TextField
+              disabled
+              id="outlined-disabled"
+              label="Saldo"
+              value={saldo}
+            />
+            <Tooltip title='Adicionar saldo'>
+            <IconButton onClick={() => handleOpenBalance()}>
+              <AddIcon color="primary" />
+            </IconButton>
+            </Tooltip>
+          </Box>
+          <UserPageBoxes
+            setSaldo={setSaldo}
+            userSalesRows={userSalesRows}
+            setUserSalesRows={setUserSalesRows}
+            salesRows={salesRows}
+            setSalesRows={setSalesRows}
+          />
         </TabPanel>
         <TabPanel value={value} index={1}>
-          <DataGridComponent rows={rows} setRows={setRows} />
+          <DataGridComponent setUserSalesRows={setUserSalesRows}t rows={rows} setRows={setRows} />
         </TabPanel>
       </Box>
+      <AddBalanceModal
+        open={openBalance}
+        setOpen={setOpenBalance}
+        setSaldo={setSaldo}
+      />
     </Box>
   );
 }

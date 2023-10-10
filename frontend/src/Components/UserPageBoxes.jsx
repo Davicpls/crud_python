@@ -3,7 +3,7 @@ import DataGridComponent from "./DataGrid/DatagridSales";
 import DataGridComponentUser from "./DataGrid/DatagridUserSales"
 
 
-export default function UserPageBoxes({ userSalesRows, setUserSalesRows, salesRows, setSalesRows}) {
+export default function UserPageBoxes({ userSalesRows, setUserSalesRows, salesRows, setSalesRows, setSaldo }) {
 
   return (
     <Box sx={{
@@ -22,7 +22,7 @@ export default function UserPageBoxes({ userSalesRows, setUserSalesRows, salesRo
         }}
       >
         Tabela de compra
-        <DataGridComponent salesRows={salesRows} setSalesRows={setSalesRows}/>
+        <DataGridComponent setUserSalesRows={setUserSalesRows} setSaldo={setSaldo} salesRows={salesRows} setSalesRows={setSalesRows}/>
       </Card>
       <Card
         sx={{

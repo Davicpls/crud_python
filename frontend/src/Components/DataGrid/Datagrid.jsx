@@ -1,47 +1,44 @@
-import * as React from 'react';
-import { useCallback, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import Box from '@mui/material/Box';
-import { DataGrid } from '@mui/x-data-grid';
-import { Button, IconButton } from '@mui/material';
-import UpdateModal from '../Modals/UpdateModal'
-import EditIcon from '@mui/icons-material/Edit';
-import InsertModal from '../Modals/InsertModal';
-import DeleteModal from '../Modals/DeleteModal';
-import RefreshIcon from '@mui/icons-material/Refresh';
-import { useAxios } from '../../Hooks/useAxios';
-import { styled } from '@mui/material/styles';
-import DeleteIcon from '@mui/icons-material/Delete';
-import SellIcon from '@mui/icons-material/Sell';
-import SellModal from '../Modals/SellModal';
-import CancelSellModal from '../Modals/CancelSellModal'
-import BackspaceIcon from '@mui/icons-material/Backspace';
+import * as React from "react";
+import { useCallback, useState } from "react";
+import { useParams } from "react-router-dom";
+import Box from "@mui/material/Box";
+import { DataGrid } from "@mui/x-data-grid";
+import { Button, IconButton, Tooltip } from "@mui/material";
+import UpdateModal from "../Modals/UpdateModal";
+import EditIcon from "@mui/icons-material/Edit";
+import InsertModal from "../Modals/InsertModal";
+import DeleteModal from "../Modals/DeleteModal";
+import RefreshIcon from "@mui/icons-material/Refresh";
+import { useAxios } from "../../Hooks/useAxios";
+import { styled } from "@mui/material/styles";
+import DeleteIcon from "@mui/icons-material/Delete";
+import SellIcon from "@mui/icons-material/Sell";
+import SellModal from "../Modals/SellModal";
+import CancelSellModal from "../Modals/CancelSellModal";
+import BackspaceIcon from "@mui/icons-material/Backspace";
 
-
-
-export default function DataGridComponent({ rows, setRows }) {
-
-  const StyledGridOverlay = styled('div')(({ theme }) => ({
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: '100%',
-    '& .ant-empty-img-1': {
-      fill: theme.palette.mode === 'light' ? '#aeb8c2' : '#262626',
+export default function DataGridComponent({ rows, setRows, setUserSalesRows }) {
+  const StyledGridOverlay = styled("div")(({ theme }) => ({
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    height: "100%",
+    "& .ant-empty-img-1": {
+      fill: theme.palette.mode === "light" ? "#aeb8c2" : "#262626",
     },
-    '& .ant-empty-img-2': {
-      fill: theme.palette.mode === 'light' ? '#f5f5f7' : '#595959',
+    "& .ant-empty-img-2": {
+      fill: theme.palette.mode === "light" ? "#f5f5f7" : "#595959",
     },
-    '& .ant-empty-img-3': {
-      fill: theme.palette.mode === 'light' ? '#dce0e6' : '#434343',
+    "& .ant-empty-img-3": {
+      fill: theme.palette.mode === "light" ? "#dce0e6" : "#434343",
     },
-    '& .ant-empty-img-4': {
-      fill: theme.palette.mode === 'light' ? '#fff' : '#1c1c1c',
+    "& .ant-empty-img-4": {
+      fill: theme.palette.mode === "light" ? "#fff" : "#1c1c1c",
     },
-    '& .ant-empty-img-5': {
-      fillOpacity: theme.palette.mode === 'light' ? '0.8' : '0.08',
-      fill: theme.palette.mode === 'light' ? '#f5f5f5' : '#fff',
+    "& .ant-empty-img-5": {
+      fillOpacity: theme.palette.mode === "light" ? "0.8" : "0.08",
+      fill: theme.palette.mode === "light" ? "#f5f5f5" : "#fff",
     },
   }));
 
@@ -93,7 +90,6 @@ export default function DataGridComponent({ rows, setRows }) {
     );
   }
 
-
   const [openUpdate, setOpenUpdate] = useState(false);
   const [rowIdToUpdate, setRowIdToUpdate] = useState(null);
   const handleOpenUpdate = () => setOpenUpdate(true);
@@ -121,8 +117,7 @@ export default function DataGridComponent({ rows, setRows }) {
   const handleCancelSell = useCallback((rowId) => {
     setRowIdToCancelSell(rowId);
     handleOpenCancelSell();
-  })
-
+  }, []);
 
   const handleSell = useCallback((rowId) => {
     setRowIdToSell(rowId);
@@ -137,7 +132,6 @@ export default function DataGridComponent({ rows, setRows }) {
   const handleDelete = useCallback((rowId) => {
     setRowIdToDelete(rowId);
     handleOpenDelete();
-
   }, []);
 
   const handleInsert = () => {
@@ -148,99 +142,108 @@ export default function DataGridComponent({ rows, setRows }) {
 
   const api = useAxios();
 
-
   const refresh = async () => {
     try {
       const response = await api.get(`/get/get_items?user_id=${id}`);
-      response.data.forEach(data => {
-        data['for_sale'] === false ? data['for_sale'] = 'Não' : data['for_sale'] = 'Sim';
+      response.data.forEach((data) => {
+        data["for_sale"] === false
+          ? (data["for_sale"] = "Não")
+          : (data["for_sale"] = "Sim");
       });
       setRows(response.data);
-    }
-    catch (err) {
+    } catch (err) {
       console.log(err);
-    };
+    }
   };
 
   const columns = [
     {
-      field: 'for_sale',
-      headerName: 'A venda?',
+      field: "for_sale",
+      headerName: "A venda?",
       width: 200,
-      headerAlign: 'center',
-      align: 'center',
+      headerAlign: "center",
+      align: "center",
     },
     {
-      field: 'id',
-      headerName: 'ID',
+      field: "id",
+      headerName: "ID",
     },
     {
-      field: 'name',
-      headerName: 'Nome do Item',
+      field: "name",
+      headerName: "Nome do Item",
       width: 300,
-      headerAlign: 'center',
-      align: 'center'
+      headerAlign: "center",
+      align: "center",
     },
     {
-      field: 'description',
-      headerName: 'Descrição',
+      field: "description",
+      headerName: "Descrição",
       width: 400,
-      headerAlign: 'center',
-      align: 'center'
+      headerAlign: "center",
+      align: "center",
     },
     {
-      field: 'quantity',
-      headerName: 'Quantidade',
+      field: "quantity",
+      headerName: "Quantidade",
       width: 250,
-      headerAlign: 'center',
-      align: 'center'
+      headerAlign: "center",
+      align: "center",
     },
     {
-      field: 'price',
-      headerName: 'Preço da unidade',
+      field: "price",
+      headerName: "Preço da unidade",
       width: 250,
-      headerAlign: 'center',
-      align: 'center'
+      headerAlign: "center",
+      align: "center",
     },
     {
-      field: 'actions',
-      headerName: 'Ações',
+      field: "actions",
+      headerName: "Ações",
       width: 300,
-      headerAlign: 'center',
-      align: 'center',
+      headerAlign: "center",
+      align: "center",
       renderCell: (params) => {
         let rowId = params.row.id;
 
         return (
-          <Box sx={{ display: 'flex', gap: '1vmin' }}>
+          <Box sx={{ display: "flex", gap: "1vmin" }}>
+            <Tooltip title='Colocar a venda'>
             <IconButton onClick={() => handleSell(rowId)}>
-              <SellIcon color='primary' />
+              <SellIcon color="primary" />
             </IconButton>
+            </Tooltip>
+            <Tooltip title='Retirar da venda'>
             <IconButton onClick={() => handleCancelSell(rowId)}>
-              <BackspaceIcon color='primary' />
+              <BackspaceIcon color="primary" />
             </IconButton>
+            </Tooltip>
+            <Tooltip title='Editar item'>
             <IconButton onClick={() => handleEdit(rowId)}>
-              <EditIcon color='primary' />
+              <EditIcon color="primary" />
             </IconButton>
+            </Tooltip>
+            <Tooltip title='Deletar item'>
             <IconButton onClick={() => handleDelete(rowId)}>
-              <DeleteIcon color='primary' />
+              <DeleteIcon color="primary" />
             </IconButton>
+            </Tooltip>
           </Box>
-        )
-      }
-
-    }
+        );
+      },
+    },
   ];
 
   return (
     <>
       <CancelSellModal
+        setUserSalesRows={setUserSalesRows}
         handleClose={handleCloseCancelSell}
         open={openCancelSell}
         rowId={rowIdToCancelSell}
         setRows={setRows}
       />
       <SellModal
+        setUserSalesRows={setUserSalesRows}
         handleClose={handleCloseSell}
         open={openSell}
         rowId={rowIdToSell}
@@ -263,34 +266,58 @@ export default function DataGridComponent({ rows, setRows }) {
         open={openDelete}
         setRows={setRows}
       />
-      <Box sx={{ height: '100%', width: '100%', display: 'flex', justifyContent: 'end', alignItems: 'center', gap: '3vmin' }}>
+      <Box
+        sx={{
+          height: "100%",
+          width: "100%",
+          display: "flex",
+          justifyContent: "end",
+          alignItems: "center",
+          gap: "3vmin",
+        }}
+      >
+        <Tooltip title='Atualizar'>
         <IconButton onClick={() => refresh()}>
-          <RefreshIcon color='primary' />
+          <RefreshIcon color="primary" />
         </IconButton>
-        <Button onClick={() => handleInsert()} sx={{ mr: '20px' }}>
+        </Tooltip>
+        <Button onClick={() => handleInsert()} sx={{ mr: "85px" }}>
           Inserir Item
         </Button>
       </Box>
-      <Box sx={{
-        height: '75vh', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', '& .true': {
-          backgroundColor: 'rgba(157, 255, 118, 0.49)',
-          color: '#1a3e72',
-        },
-        '& .false': {
-          backgroundColor: '#d47483',
-          color: '#1a3e72',
-        },
-      }}>
+      <Box
+        sx={{
+          height: "75vh",
+          width: "100%",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          "& .true": {
+            backgroundColor: "rgba(157, 255, 118, 0.49)",
+            color: "#1a3e72",
+          },
+          "& .false": {
+            backgroundColor: "#d47483",
+            color: "#1a3e72",
+          },
+        }}
+      >
         <DataGrid
           autoHeight
-          sx={{ mt: '5px', '--DataGrid-overlayHeight': '300px' }}
+          sx={{ mt: "5px", "--DataGrid-overlayHeight": "300px" }}
           rows={rows}
           columns={columns}
           getCellClassName={(params) => {
-            if (params.field === 'name' || params.field === 'description' || params.field === 'quantity' || params.field === 'price' || params.value == null) {
-              return '';
+            if (
+              params.field === "name" ||
+              params.field === "description" ||
+              params.field === "quantity" ||
+              params.field === "price" ||
+              params.value == null
+            ) {
+              return "";
             }
-            return params.value === 'Não' ? 'false' : 'true';
+            return params.value === "Não" ? "false" : "true";
           }}
           initialState={{
             pagination: { paginationModel: { pageSize: 10 } },

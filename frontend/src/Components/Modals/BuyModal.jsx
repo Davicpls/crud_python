@@ -7,8 +7,11 @@ import {
     Typography,
     Snackbar,
     Button,
+    TextField,
+    InputAdornment
 } from "@mui/material/";
-import { useState } from "react";
+import AppContext from "../../Hooks/AppContext";
+import { useState, useContext } from "react";
 import { useParams } from "react-router-dom";
 import { useAxios } from "../../Hooks/useAxios";
 import MuiAlert from "@mui/material/Alert";
@@ -31,7 +34,7 @@ const style = {
 };
 
 
-export default function BuyModal({ handleClose, open, rowId, setRows, rows }) {
+export default function BuyModal({ handleClose, open, rowId, setSalesRows, setSaldo, sellerId, setUserSalesRows }) {
 
     const userId = useParams().id
 
@@ -44,6 +47,14 @@ export default function BuyModal({ handleClose, open, rowId, setRows, rows }) {
     const [openSnackError, setOpenSnackError] = useState(false)
 
     const [errorSnack, setErrorSnack] = useState('');
+
+    const { rows, setRows } = useContext(AppContext);
+
+    const [quantity, setQuantity] = useState(0);
+
+    const handleChange = (e) => {
+        setQuantity(e.target.value);
+    }
 
     const handleClickSnack = () => {
         setOpenSnack(true);
@@ -68,6 +79,29 @@ export default function BuyModal({ handleClose, open, rowId, setRows, rows }) {
     const refresh = async () => {
         try {
             const response = await api.get(`get/items_for_sale?user_id=${userId}`);
+            setSalesRows(response.data);
+        }
+        catch (err) {
+            console.log(err);
+        }
+    };
+
+    const refreshBalance = async () => {
+        try {
+            const response = await api.get(`/get/get_user_balance?user_id=${userId}`);
+            setSaldo(`R$ ${response.data.balance}`);
+        }
+        catch (err) {
+            console.log(err);
+        };
+    };
+
+    const refreshUserItems = async () => {
+        try {
+            const response = await api.get(`/get/get_items?user_id=${userId}`);
+            response.data.forEach(data => {
+                data['for_sale'] === false ? data['for_sale'] = 'Não' : data['for_sale'] = 'Sim';
+            });
             setRows(response.data);
         }
         catch (err) {
@@ -75,26 +109,44 @@ export default function BuyModal({ handleClose, open, rowId, setRows, rows }) {
         }
     };
 
+    const refreshUserSalesItems = async () => {
+        try {
+            const response = await api.get(`/get/user_items_for_sale?user_id=${userId}`);
+            response.data.forEach(data => {
+                data['for_sale'] === false ? data['for_sale'] = 'Não' : data['for_sale'] = 'Sim';
+            });
+            setUserSalesRows(response.data);
+        }
+        catch (err) {
+            console.log(err);
+        }
+    };
 
     const intId = parseInt(rowId);
 
     const handleSubmit = async () => {
-        const data = {"item_id": intId, "user_id": userId}
+        const data = { "item_id": intId, "user_id": userId, "quantity": quantity, "seller_id": sellerId}
         api.patch('patch/buy_item', data)
             .then((res) => {
                 if (res.status === 200) {
                     handleClickSnack();
                     refresh();
+                    refreshBalance();
+                    refreshUserItems();
+                    refreshUserSalesItems();
                 };
             })
             .catch((err) => {
                 setOpenSnackError(true);
                 if (err && err.response && err.response.data) {
                     setErrorSnack(err.response.data.detail);
-                };
+                }
+                else {
+                    setErrorSnack('Erro ao comprar o item')
+                }
             });
     };
-    
+
 
     return (
         <>
@@ -113,7 +165,16 @@ export default function BuyModal({ handleClose, open, rowId, setRows, rows }) {
             >
                 <Fade in={open}>
                     <Box sx={style}>
-                        Deseja realmente comprar este item?
+                       Insira a quantidade que deseja adquirir
+                        <TextField
+                            label="Quantidade de itens"
+                            name="balance"
+                            sx={{ mt: 2, width: "40vmin" }}
+                            value={quantity}
+                            onChange={handleChange}
+                            type="number"
+                            fullWidth
+                        />
                         <Typography
                             sx={{
                                 height: "70%",
@@ -133,14 +194,14 @@ export default function BuyModal({ handleClose, open, rowId, setRows, rows }) {
                                     backgroundColor: 'rgba(0, 128, 0, 0.3)',
                                 }, color: "white"
                             }}>
-                                SIM
+                                Comprar
                             </Button>
                             <Button onClick={handleClose} sx={{
                                 backgroundColor: 'red', '&:hover': {
                                     backgroundColor: ' rgba(255, 0, 0, 0.3)',
                                 }, color: "white"
                             }}>
-                                NÃO
+                                Cancelar
                             </Button>
                         </Typography>
                     </Box>

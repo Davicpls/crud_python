@@ -30,7 +30,7 @@ const style = {
     p: 2,
 };
 
-export default function SellModal({ handleClose, open, rowId, setRows, rows }) {
+export default function SellModal({ handleClose, open, rowId, setRows, rows, setUserSalesRows }) {
     const userId = useParams().id;
 
     const Alert = React.forwardRef(function Alert(props, ref) {
@@ -74,16 +74,30 @@ export default function SellModal({ handleClose, open, rowId, setRows, rows }) {
         }
     };
 
+    const refreshUserSalesItems = async () => {
+        try {
+            const response = await api.get(`/get/user_items_for_sale?user_id=${userId}`);
+            response.data.forEach(data => {
+                data['for_sale'] === false ? data['for_sale'] = 'Não' : data['for_sale'] = 'Sim';
+            });
+            setUserSalesRows(response.data);
+        }
+        catch (err) {
+            console.log(err);
+        }
+    };
+
     const intId = parseInt(rowId);
 
     const handleSubmit = async () => {
-        const data = { row_id: intId, for_sale: true };
+        const data = { row_id: intId, for_sale: true, user_id: userId };
         api
             .patch("patch/item_for_sale", data)
             .then((res) => {
                 if (res.status === 200) {
                     handleClickSnack();
                     refresh();
+                    refreshUserSalesItems();
                 }
             })
             .catch((err) => {
