@@ -1,4 +1,4 @@
-from sqlalchemy import String, Float, ForeignKey, TIMESTAMP, DateTime, func, BOOLEAN
+from sqlalchemy import String, Float, ForeignKey, TIMESTAMP, DateTime, func, BOOLEAN, Integer
 from sqlalchemy.orm import DeclarativeBase, relationship, Mapped, mapped_column
 from configs.db_conn import DbConn
 from typing import List
@@ -24,6 +24,7 @@ class User(Base):
 
     transactions: Mapped[List["Transactions"]] = relationship(back_populates="user", cascade="all, delete-orphan")
     user_items: Mapped[List["UserItems"]] = relationship(back_populates="user", cascade="all, delete-orphan")
+    balance: Mapped[List["Balance"]] = relationship(back_populates="user", cascade="all, delete-orphan")
 
     def __repr__(self) -> str:
         return f"User(id={self.id!r}, name={self.name!r}, email={self.email!r}, cpf={self.cpf!r}," \
@@ -37,9 +38,8 @@ class Items(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(50))
     description: Mapped[str] = mapped_column(String(100))
-    quantity: Mapped[float] = mapped_column(Float)
+    quantity: Mapped[int] = mapped_column(Integer)
     price: Mapped[float] = mapped_column(Float)
-    for_sale: Mapped[BOOLEAN] = mapped_column(BOOLEAN, default=False)
 
     transactions: Mapped[List["Transactions"]] = relationship(back_populates="items", cascade="all, delete-orphan")
     user_items: Mapped[List["UserItems"]] = relationship(back_populates="items", cascade="all, delete-orphan")
@@ -73,12 +73,29 @@ class UserItems(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey('private.user.id'))
     item_id: Mapped[int] = mapped_column(ForeignKey('private.items.id'))
+    quantity: Mapped[int] = mapped_column(Integer)
+    for_sale: Mapped[BOOLEAN] = mapped_column(BOOLEAN, default=False)
 
     user: Mapped["User"] = relationship(back_populates="user_items")
     items: Mapped["Items"] = relationship(back_populates="user_items")
 
     def __repr__(self) -> str:
-        return f"UserItems(id={self.id!r}, user_id={self.user_id!r}, item_id={self.user_id!r})"
+        return f"UserItems(id={self.id!r}, user_id={self.user_id!r}, item_id={self.user_id!r}, quantity={self.quantity!r})"
+
+
+class Balance(Base):
+    __tablename__ = 'balance'
+    __table_args__ = {'schema': 'private'}
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey('private.user.id'))
+    balance: Mapped[float] = mapped_column(Float, default=0)
+    currency: Mapped[str] = mapped_column(String(50), default='Real')
+
+    user: Mapped["User"] = relationship(back_populates="balance")
+
+    def __repr__(self) -> str:
+        return f"Balance(id={self.id!r}, user_id={self.user_id!r}, balance={self.balance!r}, currency={self.currency!r})"
 
 
 # CREATE ALL TABLES:

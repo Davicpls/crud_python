@@ -65,6 +65,7 @@ class ItemsManagementPost:
                     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Esse CPF não é válido")
                 new_user = User(name=titled_name, email=user_reg.email, cpf=user_reg.cpf, password=hashed_password)
                 db.add(new_user)
+                new_balance = Balance(user_id=new_user.id, )
                 db.commit()
                 result = new_user.__repr__()
 
@@ -89,7 +90,10 @@ class ItemsManagementPost:
                 db.commit()
 
                 # Adiciona a relação user-items
-                user_items_association = UserItems(user_id=new_item.user_id, item_id=insert_item.id)
+                user_items_association = UserItems(user_id=new_item.user_id,
+                                                   item_id=insert_item.id,
+                                                   quantity=new_item.quantity
+                                                   )
                 db.add(user_items_association)
                 db.commit()
                 db.refresh(insert_item)
@@ -99,19 +103,22 @@ class ItemsManagementPost:
 
             except Exception as e:
                 print(f'Your exception -> {e}')
-                raise e
+                raise HTTPException(status_code=400, detail="There was a problem inserting your new item")
 
         return result
 
     @classmethod
     def insert_an_transaction(cls, user_id: int, item_id: int) -> str:
+        with connection.Session() as db:
+            try:
+                new_transaction = Transactions(user_id=user_id, item_id=item_id)
+                db.add(new_transaction)
+                db.commit()
 
-        session = connection.Session()
-        new_transaction = Transactions(user_id=user_id, item_id=item_id)
-        session.add(new_transaction)
-        session.commit()
-
-        result = new_transaction.__repr__()
+                result = new_transaction.__repr__()
+            except Exception as e:
+                print(f'Your exception -> {e}')
+                raise HTTPException(status_code=400, detail='There was a problem in your transaction')
 
         return result
 

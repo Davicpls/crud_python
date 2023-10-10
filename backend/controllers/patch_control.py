@@ -1,5 +1,6 @@
 from models.classes.classes import *
 from configs.db_conn import DbConn
+from fastapi import HTTPException
 
 connection = DbConn()
 
@@ -26,7 +27,7 @@ class ItemsManagementPatch:
 
             except Exception as e:
                 print(f'You exception -> {e}')
-                raise e
+                raise HTTPException(status_code=400, detail='You item cannot be updated')
 
         return result
 
@@ -38,12 +39,14 @@ class ItemsManagementPatch:
                     default_item = db.query(Items).filter(Items.id == updated_item.row_id).first()
 
                     if not default_item:
-                        raise Exception(f"No item found with id {updated_item.row_id}")
+                        raise HTTPException(status_code=404, detail=f"No item found with id {updated_item.row_id}")
 
-                if default_item.for_sale:
-                    raise Exception(f"The item with the id {updated_item.row_id} is already for sell")
+                user_item = db.query(UserItems).filter(UserItems.user_id == updated_item.user_id,
+                                                       UserItems.item_id == updated_item.row_id).first()
+                if user_item.for_sale:
+                    raise HTTPException(status_code=404, detail=f"No user-item found with id {updated_item.row_id}")
 
-                default_item.for_sale = updated_item.for_sale
+                user_item.for_sale = updated_item.for_sale
                 db.commit()
 
             except Exception as e:
@@ -60,12 +63,14 @@ class ItemsManagementPatch:
                     default_item = db.query(Items).filter(Items.id == updated_item.row_id).first()
 
                     if not default_item:
-                        raise Exception(f"No item found with id {updated_item.row_id}")
+                        raise HTTPException(status_code=404, detail=f"No item found with id {updated_item.row_id}")
 
-                if default_item.for_sale == False:
-                    raise Exception(f"The item with the id {updated_item.row_id} is not for sell")
+                user_item = db.query(UserItems).filter(UserItems.user_id == updated_item.user_id,
+                                                       UserItems.item_id == updated_item.row_id).first()
+                if not user_item.for_sale:
+                    raise HTTPException(status_code=404, detail=f"No user-item found with id {updated_item.row_id}")
 
-                default_item.for_sale = updated_item.for_sale
+                user_item.for_sale = updated_item.for_sale
                 db.commit()
 
             except Exception as e:
@@ -79,22 +84,60 @@ class ItemsManagementPatch:
         with connection.Session() as db:
             try:
                 with db.begin():
-                    user_item = db.query(UserItems).filter(UserItems.item_id == buy_transaction.item_id).first()
+                    seller_user_item = db.query(UserItems).filter(UserItems.user_id == buy_transaction.seller_id,
+                                                                  UserItems.item_id == buy_transaction.item_id).first()
+                    if not seller_user_item:
+                        raise HTTPException(status_code=404, detail=f"No item found with id {buy_transaction.item_id}")
 
+                    if seller_user_item.quantity < buy_transaction.quantity:
+                        raise HTTPException(status_code=400, detail=f"Not enough items")
+
+                    item = db.query(Items).filter(Items.id == buy_transaction.item_id).first()
+                    new_balance = db.query(Balance).filter(Balance.user_id == buy_transaction.user_id).first()
+                    total_cost = item.price * buy_transaction.quantity
+                    if new_balance.balance < total_cost:
+                        raise HTTPException(status_code=400, detail=f"Not enough balance to buy this item")
+
+                    new_balance.balance -= total_cost
+
+                    new_transaction = Transactions(user_id=buy_transaction.user_id, item_id=buy_transaction.item_id)
+                    db.add(new_transaction)
+
+                    seller_user_item.quantity -= buy_transaction.quantity
+
+                    user_item = db.query(UserItems).filter(UserItems.user_id == buy_transaction.user_id,
+                                                           UserItems.item_id == buy_transaction.item_id).first()
                     if not user_item:
-                        raise ValueError(f"No item found with id {buy_transaction.item_id}")
+                        new_user_item = UserItems(user_id=buy_transaction.user_id, item_id=buy_transaction.item_id,
+                                                  quantity=buy_transaction.quantity)
+                        db.add(new_user_item)
+                    else:
+                        user_item.quantity += buy_transaction.quantity
 
-                new_transaction = Transactions(user_id=buy_transaction.user_id, item_id=buy_transaction.item_id)
-                db.add(new_transaction)
-                user_item.user_id = buy_transaction.user_id
-                item = db.query(Items).filter(Items.id == buy_transaction.item_id).first()
-                item.for_sale = False
-
-                db.commit()
+                    db.commit()
             except Exception as e:
-                print(f'You exception -> {e}')
+                db.rollback()
+                print(f'Your exception -> {e}')
                 raise e
 
         return 200
+
+    @classmethod
+    def add_balance(cls, add_balance):
+        with connection.Session() as db:
+            try:
+                with db.begin():
+                    user = db.query(User).filter(User.id == add_balance.user_id).first()
+
+                    if not user:
+                        raise HTTPException(status_code=404, detail=f"No user found with id {add_balance.user_id}")
+
+                new_balance = db.query(Balance).filter(Balance.user_id == add_balance.user_id).first()
+                new_balance.balance += add_balance.balance
+                db.commit()
+
+            except Exception as e:
+                print(f'You exception -> {e}')
+                raise e
 
 

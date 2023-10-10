@@ -123,7 +123,27 @@ async def get_user_items_for_sale(current_user: User = Depends(get_current_user)
                             tags=['Manager patch'],
                             status_code=200)
 async def buy_item(current_user: User = Depends(get_current_user),
-                   buy_transaction: InsertTransaction = Body(None, description='Transaction model')):
+                   buy_transaction: BuyTransaction = Body(None, description='Buy transaction model')):
     result = ItemsManagementPatch.exchange_user_items(buy_transaction=buy_transaction)
+    return result
+
+
+@api_management_patch.patch('/add_balance',
+                            description='Add balance to the user account',
+                            tags=['Manager patch'],
+                            status_code=200)
+async def add_user_balance(current_user: User = Depends(get_current_user),
+                           add_balance: AddBalance = Body(None, description='Add balance model')):
+    result = ItemsManagementPatch.add_balance(add_balance=add_balance)
+    return result
+
+
+@api_management_get.get('/get_user_balance',
+                        description='Get all items that are for sale',
+                        tags=['Manager get'],
+                        status_code=200)
+async def get_user_balance(current_user: User = Depends(get_current_user),
+                           user_id: int = Query(None, description='User Id')):
+    result = ItemsManagementGet.get_balance(user_id=user_id)
     return result
 

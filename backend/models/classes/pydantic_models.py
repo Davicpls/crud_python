@@ -30,9 +30,23 @@ class InsertTransaction(BaseModel):
     item_id: int
 
 
+class BuyTransaction(BaseModel):
+    user_id: int
+    item_id: int
+    seller_id: int
+    quantity: int
+
+
 class UpdateItemForSale(BaseModel):
     row_id: int
     for_sale: bool
+    user_id: int
+
+
+class AddBalance(BaseModel):
+    user_id: int
+    balance: float
+    currency: Optional[str]
 
 
 
