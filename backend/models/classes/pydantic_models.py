@@ -19,6 +19,7 @@ class InsertItem(BaseModel):
 
 class UpdateItem(BaseModel):
     row_id: int
+    user_id: int
     name: Optional[str]
     description: Optional[str]
     quantity: Optional[float]

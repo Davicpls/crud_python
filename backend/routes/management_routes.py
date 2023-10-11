@@ -68,13 +68,14 @@ async def get_items(current_user: User = Depends(get_current_user),
     return result
 
 
-@api_management_delete.delete('/{row_id}',
+@api_management_delete.delete('/{row_id}/{user_id}',
                               description='Delete a item row',
                               tags=['Manager delete'],
                               status_code=200)
 async def delete_items(current_user: User = Depends(get_current_user),
-                       row_id: int = Path(..., description='Delete an item')):
-    result = ItemsManagementDelete.delete_items(row_id=row_id)
+                       row_id: int = Path(..., description='Item Id'),
+                       user_id: int = Path(..., description='User Id')):
+    result = ItemsManagementDelete.delete_items(row_id=row_id, user_id=user_id)
     return result
 
 

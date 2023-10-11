@@ -33,7 +33,7 @@ const style = {
 
 export default function DeleteModal({ handleClose, open, rowId, setRows }) {
 
-    const id = useParams().id
+    const userId = useParams().id
 
     const Alert = React.forwardRef(function Alert(props, ref) {
         return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -67,7 +67,7 @@ export default function DeleteModal({ handleClose, open, rowId, setRows }) {
 
     const refresh = async () => {
         try {
-            const response = await api.get(`/get/get_items?user_id=${id}`);
+            const response = await api.get(`/get/get_items?user_id=${userId}`);
             response.data.forEach(data => {
                 data['for_sale'] === false ? data['for_sale'] = 'Não' : data['for_sale'] = 'Sim';
               });
@@ -81,7 +81,7 @@ export default function DeleteModal({ handleClose, open, rowId, setRows }) {
     const intId = parseInt(rowId);
 
     const handleSubmit = async () => {
-        api.delete(`delete/${intId}`)
+        api.delete(`delete/${intId}/${userId}`)
             .then((res) => {
                 if (res.status === 200) {
                     handleClickSnack();

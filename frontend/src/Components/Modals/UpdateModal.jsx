@@ -35,7 +35,7 @@ const style = {
 
 export default function UpdateModal({ handleClose, open, rowId, setRows }) {
 
-  const id = useParams().id
+  const userId = useParams().id
 
   const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -90,7 +90,7 @@ export default function UpdateModal({ handleClose, open, rowId, setRows }) {
 
   const refresh = async () => {
     try {
-      const response = await api.get(`/get/get_items?user_id=${id}`);
+      const response = await api.get(`/get/get_items?user_id=${userId}`);
       response.data.forEach(data => {
         data['for_sale'] === false ? data['for_sale'] = 'Não' : data['for_sale'] = 'Sim';
       });
@@ -130,6 +130,7 @@ export default function UpdateModal({ handleClose, open, rowId, setRows }) {
     updateItemsForm['quantity'] = parseFloat(updateItemsForm['quantity']);
     updateItemsForm['price'] = parseFloat(updateItemsForm['price']);
     updateItemsForm['row_id'] = parseInt(rowId);
+    updateItemsForm['user_id'] = userId
     const data = updateItemsForm;
 
     api
@@ -220,7 +221,7 @@ export default function UpdateModal({ handleClose, open, rowId, setRows }) {
               </FormControl>
             </Typography>
             <Box sx={{ display: "flex", width: "100%", justifyContent: "end" }}>
-              <Button onClick={handleSubmit} variant="contained" sx={{
+              <Button onClick={() => handleSubmit()} variant="contained" sx={{
                 backgroundColor: 'green', '&:hover': {
                   backgroundColor: 'green',
                 }

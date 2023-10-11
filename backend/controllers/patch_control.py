@@ -12,6 +12,8 @@ class ItemsManagementPatch:
         with connection.Session() as db:
             try:
                 default_item = db.query(Items).filter(Items.id == updated_item.row_id).first()
+                user_item = db.query(UserItems).filter(UserItems.item_id == updated_item.row_id,
+                                                       UserItems.user_id == updated_item.user_id).first()
                 if updated_item.name and updated_item.name.strip():
                     default_item.name = updated_item.name
                 if updated_item.description and updated_item.description.strip():
@@ -20,16 +22,15 @@ class ItemsManagementPatch:
                     default_item.quantity = updated_item.quantity
                 if updated_item.price is not None:
                     default_item.price = updated_item.price
-                db.commit()
 
-                db.refresh(default_item)
-                result = default_item.__repr__()
+                user_item.quantity = updated_item.quantity
+                db.commit()
 
             except Exception as e:
                 print(f'You exception -> {e}')
-                raise HTTPException(status_code=400, detail='You item cannot be updated')
+                raise HTTPException(status_code=400, detail='Your item cannot be updated')
 
-        return result
+        return 200
 
     @classmethod
     def for_sale_patch_true(cls, updated_item):
@@ -104,6 +105,10 @@ class ItemsManagementPatch:
                     db.add(new_transaction)
 
                     seller_user_item.quantity -= buy_transaction.quantity
+
+                    if seller_user_item.quantity == 0:
+                        db.query(UserItems).filter(UserItems.user_id == buy_transaction.seller_id,
+                                                   UserItems.item_id == buy_transaction.item_id).delete()
 
                     user_item = db.query(UserItems).filter(UserItems.user_id == buy_transaction.user_id,
                                                            UserItems.item_id == buy_transaction.item_id).first()

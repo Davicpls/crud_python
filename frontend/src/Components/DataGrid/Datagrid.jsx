@@ -323,7 +323,7 @@ export default function DataGridComponent({ rows, setRows, setUserSalesRows }) {
             pagination: { paginationModel: { pageSize: 10 } },
             columns: {
               columnVisibilityModel: {
-                id: false,
+                id: false
               },
             },
           }}
