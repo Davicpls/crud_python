@@ -20,10 +20,10 @@ class ItemsManagementPatch:
                     default_item.description = updated_item.description
                 if updated_item.quantity is not None:
                     default_item.quantity = updated_item.quantity
+                    user_item.quantity = updated_item.quantity
                 if updated_item.price is not None:
                     default_item.price = updated_item.price
 
-                user_item.quantity = updated_item.quantity
                 db.commit()
 
             except Exception as e:
