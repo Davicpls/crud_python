@@ -1,13 +1,19 @@
 import axios from "axios";
-import { useContext } from "react";
-import AppContext from "./AppContext";
+
+let envUrl = ""
+if (process.env.REACT_APP_ENV === 'dev'){
+  envUrl = "http://localhost:8000"
+}
+else if (process.env.REACT_APP_ENV === 'prod'){
+  envUrl = "https://crud-python-backend.onrender.com"
+}
 
 export const useAxios = () => {
   const token = sessionStorage.getItem("myToken")
 
 
   return axios.create({
-    baseURL: "http://localhost:8000/api/management/",
+    baseURL: `${envUrl}/api/management/`,
     headers: {
       Authorization: `Bearer ${token}`,
     },
