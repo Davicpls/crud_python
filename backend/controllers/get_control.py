@@ -17,7 +17,7 @@ class ItemsManagementGet:
 
                 items = (db.query(Items, UserItems.quantity, UserItems.for_sale)
                          .join(UserItems, UserItems.item_id == Items.id)
-                         .filter(Items.id.in_(item_ids), UserItems.user_id == user_id)
+                         .filter(Items.id.in_(item_ids), UserItems.user_id == user_id, Items.deleted == False)
                          .all())
 
                 df = pd.DataFrame([(item.id, item.name, item.description, quantity, item.price, for_sale)
@@ -35,7 +35,7 @@ class ItemsManagementGet:
             try:
                 items_for_sale = (db.query(Items, UserItems.user_id, UserItems.quantity, UserItems.for_sale)
                                   .join(UserItems, UserItems.item_id == Items.id)
-                                  .filter(UserItems.for_sale == True, UserItems.user_id != user_id)
+                                  .filter(UserItems.for_sale == True, UserItems.user_id != user_id, Items.deleted == False)
                                   .all())
 
                 df = pd.DataFrame([(item.id, item.name, item.description, quantity, item.price, for_sale,
@@ -54,7 +54,7 @@ class ItemsManagementGet:
             try:
                 items_for_sale = (db.query(Items, UserItems.quantity, UserItems.for_sale)
                                   .join(UserItems, UserItems.item_id == Items.id)
-                                  .filter(UserItems.for_sale == True, UserItems.user_id == user_id)
+                                  .filter(UserItems.for_sale == True, UserItems.user_id == user_id, Items.deleted == False)
                                   .all())
 
                 df = pd.DataFrame([(item.id, item.name, item.description, quantity, item.price, for_sale)

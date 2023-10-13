@@ -19,7 +19,7 @@ class ItemsManagementDelete:
                 db.query(UserItems).filter(UserItems.item_id == row_id,
                                            UserItems.user_id == user_id).delete()
                 if items_rows.quantity == 0:
-                    db.query(Items).filter(Items.id == row_id).delete()
+                    items_rows.deleted = True
 
                 db.commit()
             except Exception as e:
