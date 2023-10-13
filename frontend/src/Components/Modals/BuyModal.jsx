@@ -50,7 +50,7 @@ export default function BuyModal({ handleClose, open, rowId, setSalesRows, setSa
 
     const { rows, setRows } = useContext(AppContext);
 
-    const [quantity, setQuantity] = useState(0);
+    const [quantity, setQuantity] = useState("");
 
     const handleChange = (e) => {
         setQuantity(e.target.value);
@@ -124,7 +124,17 @@ export default function BuyModal({ handleClose, open, rowId, setSalesRows, setSa
 
     const intId = parseInt(rowId);
 
+    const validateInput = (input) => {
+        const validateNumericRegex = /^[0-9]+$/
+        return validateNumericRegex.test(input.toString())
+    }
+
     const handleSubmit = async () => {
+        if (!validateInput(quantity)){
+            setErrorSnack('Insira um valor válido')
+            setOpenSnackError(true)
+            return ''
+        }
         const data = { "item_id": intId, "user_id": userId, "quantity": quantity, "seller_id": sellerId}
         api.patch('patch/buy_item', data)
             .then((res) => {
