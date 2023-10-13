@@ -40,6 +40,7 @@ class Items(Base):
     description: Mapped[str] = mapped_column(String(100))
     quantity: Mapped[int] = mapped_column(Integer)
     price: Mapped[float] = mapped_column(Float)
+    deleted: Mapped[BOOLEAN] = mapped_column(BOOLEAN, default=False)
 
     transactions: Mapped[List["Transactions"]] = relationship(back_populates="items", cascade="all, delete-orphan")
     user_items: Mapped[List["UserItems"]] = relationship(back_populates="items", cascade="all, delete-orphan")
