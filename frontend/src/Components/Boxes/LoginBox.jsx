@@ -181,7 +181,7 @@ export default function LoginBox() {
               <InputAdornment position="end">
                 <IconButton
                   aria-label="toggle password visibility"
-                  onClick={handleClickShowPassword}
+                  onClick={() => handleClickShowPassword()}
                   onMouseDown={handleMouseDownPassword}
                 >
                   {showPassword ? <VisibilityOff /> : <Visibility />}
@@ -203,7 +203,7 @@ export default function LoginBox() {
           }}
           style={{ backgroundColor: "#CA2E55", color: "black" }}
           variant="contained"
-          onClick={handleSubmitLogin}
+          onClick={() => handleSubmitLogin()}
         >
           Login
         </Button>
