@@ -1,14 +1,28 @@
 import React, { useContext, useState, useEffect } from "react";
-import { Box, Button, Tab, Tabs, Typography, TextField, IconButton, Tooltip } from "@mui/material";
+import {
+  Box,
+  Button,
+  Tab,
+  Tabs,
+  Typography,
+  TextField,
+  IconButton,
+  Tooltip,
+} from "@mui/material";
 import NavBar from "../Navbar";
 import PropTypes from "prop-types";
 import UserPageBoxes from "../UserPageBoxes";
 import AppContext from "../../Hooks/AppContext";
 import { useNavigate, useParams, Navigate } from "react-router-dom";
 import DataGridComponent from "../DataGrid/Datagrid";
+import DataGridTransactionsHistory from "../DataGrid/DatagridTransactionsHistory";
 import { useAxios } from "../../Hooks/useAxios";
-import AddIcon from '@mui/icons-material/Add';
+import AddIcon from "@mui/icons-material/Add";
 import AddBalanceModal from "../Modals/AddBalanceModal";
+import moment from 'moment';
+import 'moment/locale/pt-br';
+
+moment.locale('pt-br');
 
 export default function UserHomePage() {
   function TabPanel(props) {
@@ -91,12 +105,12 @@ export default function UserHomePage() {
 
   const [userSalesRows, setUserSalesRows] = useState(null);
 
-  const [saldo, setSaldo] = useState(`R$ ${0}`);
+  const [historyRows, setHistoryRows] = useState(null);
 
+  const [saldo, setSaldo] = useState(`R$ ${0}`);
 
   const [openBalance, setOpenBalance] = useState(false);
   const handleOpenBalance = () => setOpenBalance(true);
-
 
   useEffect(() => {
     api
@@ -104,13 +118,12 @@ export default function UserHomePage() {
       .then((res) => {
         if (res.status === 200) {
           setSaldo(`R$ ${res.data.balance}`);
-        };
+        }
       })
       .catch((err) => {
-        console.log(err)
+        console.log(err);
       });
   }, []);
-
 
   useEffect(() => {
     api
@@ -161,6 +174,21 @@ export default function UserHomePage() {
       .get(`get/items_for_sale?user_id=${userId}`)
       .then((res) => {
         setSalesRows(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
+
+  useEffect(() => {
+    api
+      .get(`get/user_transaction_history?user_id=${userId}`)
+      .then((res) => {
+        res.data.forEach((item) => {
+          let data = moment(item.date_time);
+          item.date_time = data.format('LLLL');
+        });
+        setHistoryRows(res.data);
       })
       .catch((err) => {
         console.log(err);
@@ -223,6 +251,29 @@ export default function UserHomePage() {
     );
   }
 
+  if (!historyRows) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          flexDirection: "column",
+          mb: "2vmin",
+          height: "100vh",
+          width: "100vw",
+          fontFamily: "Montserrat",
+          WebkitFontSmoothing: "antialised",
+          MozOsxFontSmoothing: "grayscale",
+          textRendering: "optimizeLegibility",
+          fontFeatureSettings: styleSettings,
+        }}
+      >
+        Carregando
+      </Box>
+    );
+  }
+
   return (
     <Box sx={{ height: "100vh" }}>
       <NavBar title={title} logoff={true} />
@@ -242,22 +293,30 @@ export default function UserHomePage() {
         <Tabs value={value} onChange={handleChange}>
           <Tab label="Visão Geral" />
           <Tab label="Tabela de gerenciamento" />
+          <Tab label="Histórico de transações" />
         </Tabs>
         <TabPanel value={value} index={0}>
-          <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "2vmin", mb: "15px", pr: "85vmin" }}>
-            <Typography>
-              Seu saldo
-            </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: "2vmin",
+              mb: "15px",
+              pr: "85vmin",
+            }}
+          >
+            <Typography>Seu saldo</Typography>
             <TextField
               disabled
               id="outlined-disabled"
               label="Saldo"
               value={saldo}
             />
-            <Tooltip title='Adicionar saldo'>
-            <IconButton onClick={() => handleOpenBalance()}>
-              <AddIcon color="primary" />
-            </IconButton>
+            <Tooltip title="Adicionar saldo">
+              <IconButton onClick={() => handleOpenBalance()}>
+                <AddIcon color="primary" />
+              </IconButton>
             </Tooltip>
           </Box>
           <UserPageBoxes
@@ -269,7 +328,16 @@ export default function UserHomePage() {
           />
         </TabPanel>
         <TabPanel value={value} index={1}>
-          <DataGridComponent setUserSalesRows={setUserSalesRows}t rows={rows} setRows={setRows} />
+          <DataGridComponent
+            setUserSalesRows={setUserSalesRows}
+            t
+            rows={rows}
+            setRows={setRows}
+          />
+        </TabPanel>
+        <TabPanel value={value} index={2}>
+          <DataGridTransactionsHistory historyRows={historyRows} />
+          {console.log(historyRows)}
         </TabPanel>
       </Box>
       <AddBalanceModal

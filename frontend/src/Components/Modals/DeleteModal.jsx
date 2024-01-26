@@ -10,7 +10,6 @@ import {
 } from "@mui/material/";
 import { useState } from "react";
 import { useParams } from "react-router-dom";
-import { useAxios } from "../../Hooks/useAxios";
 import MuiAlert from "@mui/material/Alert";
 
 const style = {
@@ -31,7 +30,7 @@ const style = {
 };
 
 
-export default function DeleteModal({ handleClose, open, rowId, setRows }) {
+export default function DeleteUserModal({ handleClose, open, rowId, setRows }) {
 
     const userId = useParams().id
 
@@ -62,42 +61,7 @@ export default function DeleteModal({ handleClose, open, rowId, setRows }) {
         setOpenSnackError(false);
     };
 
-    const api = useAxios();
-
-
-    const refresh = async () => {
-        try {
-            const response = await api.get(`/get/get_items?user_id=${userId}`);
-            response.data.forEach(data => {
-                data['for_sale'] === false ? data['for_sale'] = 'Não' : data['for_sale'] = 'Sim';
-              });
-            setRows(response.data);
-        }
-        catch (err) {
-            console.log(err);
-        }
-    };
-
-    const intId = parseInt(rowId);
-
-    const handleSubmit = async () => {
-        api.delete(`delete/${intId}/${userId}`)
-            .then((res) => {
-                if (res.status === 200) {
-                    handleClickSnack();
-                    refresh();
-                };
-            })
-            .catch((err) => {
-                setOpenSnackError(true);
-                if (err && err.response && err.response.data) {
-                    setErrorSnack(err.response.data.detail);
-                }
-                else {
-                    setErrorSnack('Erro ao deletar o item')
-                }
-            });
-    };
+   
 
     return (
         <>
@@ -131,7 +95,7 @@ export default function DeleteModal({ handleClose, open, rowId, setRows }) {
                                 fontFamily: "Montserrat"
                             }}
                         >
-                            <Button onClick={handleSubmit} sx={{
+                            <Button onClick={''} sx={{
                                 backgroundColor: 'green', '&:hover': {
                                     backgroundColor: 'rgba(0, 128, 0, 0.3)',
                                 }, color: "white"
