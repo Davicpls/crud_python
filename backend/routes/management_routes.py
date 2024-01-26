@@ -119,6 +119,16 @@ async def get_user_items_for_sale(current_user: User = Depends(get_current_user)
     return result
 
 
+@api_management_get.get('/user_transaction_history',
+                        description='Get the transaction history of the user',
+                        tags=['Manager get'],
+                        status_code=200)
+async def get_transaction_history(current_user: User = Depends(get_current_user),
+                                  user_id: int = Query(None, description='User Id')):
+    result = ItemsManagementGet.get_history(user_id=user_id)
+    return result
+
+
 @api_management_patch.patch('/buy_item',
                             description='Update the user item of an item',
                             tags=['Manager patch'],

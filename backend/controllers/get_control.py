@@ -76,3 +76,15 @@ class ItemsManagementGet:
             except Exception as e:
                 print(f'Your exception -> {e}')
                 raise HTTPException(status_code=400, detail='A problem has occurred getting your balance')
+
+    @classmethod
+    def get_history(cls, user_id):
+        with connection.Session() as db:
+            try:
+                user_history = db.query(Transactions).filter(Transactions.user_id == user_id).all()
+
+                return user_history
+
+            except Exception as e:
+                print(f'Your exception -> {e}')
+                raise HTTPException(status_code=400, detail='A problem has occurred getting your transaction history')
